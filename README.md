@@ -4,7 +4,7 @@ An interactive quiz game to test your knowledge of [_The Rust Programming Langua
 
 **[▶ Play Now](https://YOUR_USERNAME.github.io/rust-book-quiz/)**
 
-![Screenshot](screenshot.png)
+![Screenshot](./screenshot.png)
 
 ---
 
