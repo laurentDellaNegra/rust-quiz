@@ -2,7 +2,7 @@
 
 An interactive quiz game to test your knowledge of [_The Rust Programming Language_](https://doc.rust-lang.org/book/) (a.k.a. "The Book"), chapter by chapter.
 
-**[▶ Play Now](https://YOUR_USERNAME.github.io/rust-book-quiz/)**
+**[▶ Play Now](https://laurentdellanegra.github.io/rust-quiz/)**
 
 ![Screenshot](./screenshot.png)
 
@@ -49,39 +49,6 @@ A single-page web app that turns each chapter of the official Rust Book into a 5
 - **Score tracking** — total score, completed levels, and stars across sessions
 - **Fully offline** — single HTML file, no backend, no external API calls
 - **Mobile-friendly** — responsive layout works on any screen size
-
-## Deploy to GitHub Pages
-
-1. **Fork or clone** this repository
-
-2. Rename `rust-quiz.html` to `index.html` (or keep it and set it as the entry point):
-
-   ```bash
-   mv rust-quiz.html index.html
-   ```
-
-3. **Push** to your GitHub repository
-
-4. Go to **Settings → Pages** and set the source to your main branch
-
-5. Your quiz will be live at `https://<username>.github.io/<repo-name>/`
-
-That's it — no build step, no bundler, no `npm install`.
-
-## Run locally
-
-Just open the file in a browser:
-
-```bash
-# macOS
-open rust-quiz.html
-
-# Linux
-xdg-open rust-quiz.html
-
-# Windows
-start rust-quiz.html
-```
 
 ## Tech stack
 
