@@ -689,9 +689,37 @@
         <button class="back-btn" onclick="resetProgress()">Reset Progress</button>
       </div>
 
+      <div style="text-align: center; margin-bottom: 20px">
+        <button class="next-btn" onclick="startRandomQuiz()" style="font-size: 15px; padding: 14px 36px">
+          Random Quiz ∞
+        </button>
+      </div>
+
       <!-- Level Select -->
       <div class="screen active" id="levelSelect">
         <div class="levels-grid" id="levelsGrid"></div>
+      </div>
+
+      <!-- Random Quiz Screen -->
+      <div class="screen" id="randomScreen">
+        <div class="quiz-header">
+          <div class="quiz-chapter">Random Mode ∞</div>
+          <div class="quiz-progress-text" id="randomScore">0 correct / 0 answered</div>
+        </div>
+        <div id="randomQuestionArea"></div>
+        <div class="btn-row">
+          <button class="back-btn" onclick="quitRandomQuiz()">
+            ← Quit
+          </button>
+          <button
+            class="next-btn"
+            id="randomNextBtn"
+            style="display: none"
+            onclick="nextRandomQuestion()"
+          >
+            Next →
+          </button>
+        </div>
       </div>
 
       <!-- Quiz Screen -->
@@ -2323,6 +2351,201 @@
         if ((e.key === "Enter" || e.key === " ") && state.answered) {
           e.preventDefault();
           nextQuestion();
+        }
+      });
+
+      // ─── EXTRA QUESTIONS POOL ───
+      const extraQuestions = [
+        // Ownership & Borrowing
+        { q: "What does the <code>Clone</code> trait provide?", opts: ["Explicit deep copy via <code>.clone()</code>", "Automatic copying on assignment", "Shared ownership", "Reference counting"], ans: 0, explain: "<code>Clone</code> provides a <code>.clone()</code> method for explicit deep duplication of values." },
+        { q: "Which types implement <code>Copy</code> by default?", opts: ["Simple scalar types like <code>i32</code>, <code>bool</code>, <code>f64</code>", "All types", "Only references", "Only structs"], ans: 0, explain: "Types stored entirely on the stack (integers, bools, floats, chars, tuples of Copy types) implement <code>Copy</code>." },
+        { q: "What is a dangling reference?", opts: ["A reference to memory that has been freed", "A reference to a null pointer", "A mutable reference to a constant", "A reference to a global variable"], ans: 0, explain: "Rust's borrow checker prevents dangling references at compile time by ensuring references never outlive their data." },
+        { q: "Can you have a mutable and immutable reference at the same time?", opts: ["No — Rust forbids this to prevent data races", "Yes — always allowed", "Only in unsafe blocks", "Only for primitive types"], ans: 0, explain: "Rust's borrowing rules prevent having mutable and immutable references to the same data simultaneously." },
+        { q: "What does <code>std::mem::drop</code> do?", opts: ["Drops a value before end of scope", "Deallocates heap memory", "Removes a variable from scope", "Calls the destructor twice"], ans: 0, explain: "<code>std::mem::drop</code> takes ownership and drops the value immediately rather than at end of scope." },
+
+        // Strings
+        { q: "What encoding does Rust's <code>String</code> type use?", opts: ["UTF-8", "UTF-16", "ASCII", "Latin-1"], ans: 0, explain: "Rust strings are always valid UTF-8, which allows them to represent any Unicode text." },
+        { q: "How do you concatenate two <code>String</code>s?", opts: ["Using <code>format!</code> macro or <code>+</code> operator", "Using <code>String::concat()</code>", "Using <code>&amp;&amp;</code> operator", "Using <code>String::join()</code>"], ans: 0, explain: "<code>format!(\"{}{}\", s1, s2)</code> or <code>s1 + &s2</code> (which takes ownership of s1) are common approaches." },
+        { q: "What does <code>&str</code> represent?", opts: ["A string slice — a reference to a sequence of UTF-8 bytes", "An owned string on the heap", "A mutable string buffer", "A null-terminated C string"], ans: 0, explain: "<code>&str</code> is an immutable reference to string data, commonly seen as string literals or slices of <code>String</code>." },
+        { q: "What method iterates over characters of a string?", opts: ["<code>.chars()</code>", "<code>.characters()</code>", "<code>.iter()</code>", "<code>.each_char()</code>"], ans: 0, explain: "<code>.chars()</code> returns an iterator over the Unicode scalar values of the string." },
+
+        // Error handling
+        { q: "What is the <code>Result</code> enum's definition?", opts: ["<code>enum Result&lt;T, E&gt; { Ok(T), Err(E) }</code>", "<code>enum Result { Success, Failure }</code>", "<code>enum Result&lt;T&gt; { Some(T), None }</code>", "<code>enum Result { Ok, Err(String) }</code>"], ans: 0, explain: "<code>Result&lt;T, E&gt;</code> has two variants: <code>Ok(T)</code> for success and <code>Err(E)</code> for errors." },
+        { q: "What does <code>unwrap_or_else</code> do?", opts: ["Returns the Ok value or calls a closure on the error", "Unwraps or panics with a custom message", "Returns None if unwrap fails", "Retries the operation"], ans: 0, explain: "<code>unwrap_or_else(|e| ...)</code> lets you handle the error case with a closure instead of panicking." },
+        { q: "Can the <code>?</code> operator be used in <code>main</code>?", opts: ["Yes, if main returns <code>Result&lt;(), Box&lt;dyn Error&gt;&gt;</code>", "No, never", "Only in nightly Rust", "Only with Option types"], ans: 0, explain: "Since Rust 2018, <code>main</code> can return <code>Result</code>, enabling use of <code>?</code> directly." },
+        { q: "What does <code>map_err</code> do on a <code>Result</code>?", opts: ["Transforms the error type using a closure", "Maps the Ok value", "Catches and ignores errors", "Converts Result to Option"], ans: 0, explain: "<code>map_err(|e| ...)</code> converts one error type to another while leaving <code>Ok</code> values unchanged." },
+
+        // Traits
+        { q: "What is a blanket implementation?", opts: ["An impl that applies to all types satisfying a trait bound", "An empty trait implementation", "A default method in a trait", "A trait with no methods"], ans: 0, explain: "Blanket impls like <code>impl&lt;T: Display&gt; ToString for T</code> apply to all types matching the bound." },
+        { q: "What does <code>impl Trait</code> in return position mean?", opts: ["The function returns some type that implements the trait", "The function returns a trait object", "The function is generic", "The return type is dynamic"], ans: 0, explain: "<code>fn foo() -> impl Display</code> returns an opaque type known to the compiler that implements <code>Display</code>." },
+        { q: "What is the <code>Display</code> trait used for?", opts: ["User-facing formatted output with <code>{}</code>", "Debug output with <code>{:?}</code>", "Serialization to JSON", "Converting to string bytes"], ans: 0, explain: "Implementing <code>Display</code> allows formatting with <code>{}</code> in <code>println!</code> and similar macros." },
+        { q: "What is a supertrait?", opts: ["A trait that requires another trait to be implemented first", "A trait that overrides all methods", "A trait with only default methods", "A trait for superclasses"], ans: 0, explain: "<code>trait B: A</code> means any type implementing <code>B</code> must also implement <code>A</code>." },
+        { q: "What does <code>#[derive(PartialEq)]</code> enable?", opts: ["Comparison with <code>==</code> and <code>!=</code>", "Ordering with <code>&lt;</code> and <code>&gt;</code>", "Hashing the struct", "Cloning the struct"], ans: 0, explain: "<code>PartialEq</code> enables equality comparisons between instances of the type." },
+
+        // Closures & Iterators
+        { q: "What are the three <code>Fn</code> traits for closures?", opts: ["<code>Fn</code>, <code>FnMut</code>, <code>FnOnce</code>", "<code>Fn</code>, <code>FnRef</code>, <code>FnMove</code>", "<code>Call</code>, <code>CallMut</code>, <code>CallOnce</code>", "<code>Closure</code>, <code>Lambda</code>, <code>Proc</code>"], ans: 0, explain: "<code>FnOnce</code> consumes captured variables, <code>FnMut</code> mutably borrows, and <code>Fn</code> immutably borrows." },
+        { q: "What does <code>.filter()</code> do on an iterator?", opts: ["Returns elements where the predicate returns true", "Removes duplicates", "Transforms each element", "Takes the first N elements"], ans: 0, explain: "<code>.filter(|x| ...)</code> yields only elements for which the closure returns <code>true</code>." },
+        { q: "What does <code>.map()</code> do on an iterator?", opts: ["Transforms each element using a closure", "Collects into a HashMap", "Filters elements", "Counts elements"], ans: 0, explain: "<code>.map(|x| x * 2)</code> creates a new iterator where each element is transformed by the closure." },
+        { q: "What does <code>.enumerate()</code> do?", opts: ["Wraps each element with its index as <code>(index, value)</code>", "Counts the total elements", "Numbers the elements starting from 1", "Creates a HashMap from the iterator"], ans: 0, explain: "<code>.enumerate()</code> yields tuples of <code>(usize, T)</code> where the first element is the index." },
+        { q: "What is the difference between <code>iter()</code> and <code>into_iter()</code>?", opts: ["<code>iter()</code> borrows, <code>into_iter()</code> takes ownership", "<code>iter()</code> is mutable, <code>into_iter()</code> is immutable", "They are identical", "<code>into_iter()</code> is only for vectors"], ans: 0, explain: "<code>iter()</code> iterates over references, while <code>into_iter()</code> consumes the collection and iterates over owned values." },
+        { q: "What does <code>.fold()</code> do?", opts: ["Reduces all elements to a single value using an accumulator", "Splits the iterator in half", "Groups elements by a key", "Reverses the iterator"], ans: 0, explain: "<code>.fold(init, |acc, x| ...)</code> applies a function to each element, accumulating a result." },
+
+        // Smart Pointers
+        { q: "What is the <code>Weak&lt;T&gt;</code> smart pointer?", opts: ["A non-owning reference that doesn't prevent deallocation", "A weaker version of Box", "A pointer that automatically drops", "A thread-safe reference"], ans: 0, explain: "<code>Weak&lt;T&gt;</code> is used with <code>Rc&lt;T&gt;</code> to break reference cycles by not counting toward ownership." },
+        { q: "What does <code>Rc::clone(&rc)</code> do?", opts: ["Increments the reference count (cheap)", "Deep copies the data", "Creates a Weak reference", "Moves the Rc"], ans: 0, explain: "<code>Rc::clone</code> only increments the reference count — it does not deep copy the data." },
+        { q: "What happens when an <code>Rc</code>'s reference count reaches zero?", opts: ["The data is dropped and memory is freed", "The program panics", "The data becomes read-only", "Nothing — garbage collector handles it later"], ans: 0, explain: "When the last <code>Rc</code> is dropped and the count hits zero, the inner data is deallocated." },
+
+        // Concurrency
+        { q: "What does the <code>Send</code> trait indicate?", opts: ["The type can be transferred across thread boundaries", "The type can send messages", "The type is serializable", "The type supports network I/O"], ans: 0, explain: "<code>Send</code> means ownership of the type can be moved to another thread safely." },
+        { q: "What does the <code>Sync</code> trait indicate?", opts: ["The type is safe to reference from multiple threads", "The type supports synchronous I/O", "The type can be locked", "The type has atomic operations"], ans: 0, explain: "A type is <code>Sync</code> if <code>&T</code> is <code>Send</code> — meaning shared references are safe across threads." },
+        { q: "What does <code>mpsc</code> stand for?", opts: ["Multiple producer, single consumer", "Multiple process, single channel", "Message passing, shared context", "Multi-platform synchronization channel"], ans: 0, explain: "<code>mpsc::channel()</code> creates a channel where multiple senders can send to one receiver." },
+        { q: "What method blocks until a message is available on a channel receiver?", opts: ["<code>recv()</code>", "<code>receive()</code>", "<code>wait()</code>", "<code>get()</code>"], ans: 0, explain: "<code>rx.recv()</code> blocks the current thread until a value is available or all senders are dropped." },
+
+        // Enums & Pattern Matching
+        { q: "Can enum variants have different types of data?", opts: ["Yes — each variant can hold different types", "No — all variants must have the same type", "Only with generics", "Only unnamed fields"], ans: 0, explain: "Rust enums are algebraic data types: <code>enum Msg { Quit, Move{x:i32,y:i32}, Write(String) }</code>." },
+        { q: "What does <code>while let</code> do?", opts: ["Loops as long as a pattern matches", "Creates an infinite loop", "Declares a while loop with a condition", "Matches once and exits"], ans: 0, explain: "<code>while let Some(val) = iter.next() { }</code> loops as long as the pattern continues to match." },
+        { q: "What is a <code>match</code> arm?", opts: ["A pattern followed by code to execute if matched", "A branch of an if-else", "A function parameter", "An enum variant"], ans: 0, explain: "Each arm has a pattern and the associated code: <code>pattern => expression</code>." },
+
+        // Modules & Crates
+        { q: "What is the <code>crate</code> keyword used for in paths?", opts: ["Refers to the root of the current crate", "Imports an external crate", "Creates a new crate", "Publishes to crates.io"], ans: 0, explain: "<code>crate::module::function</code> is an absolute path starting from the crate root." },
+        { q: "What does <code>use crate::module::*</code> do?", opts: ["Brings all public items from the module into scope (glob import)", "Creates all items as mutable", "Imports the module source code", "Marks all items as public"], ans: 0, explain: "The glob operator <code>*</code> imports everything public from a module, though it's generally discouraged." },
+        { q: "What file does <code>mod garden;</code> in <code>main.rs</code> look for?", opts: ["<code>src/garden.rs</code> or <code>src/garden/mod.rs</code>", "<code>garden/main.rs</code>", "<code>src/mod_garden.rs</code>", "<code>lib/garden.rs</code>"], ans: 0, explain: "The compiler looks for <code>src/garden.rs</code> (modern style) or <code>src/garden/mod.rs</code> (older style)." },
+
+        // Macros
+        { q: "What does the <code>println!</code> macro use for formatting placeholders?", opts: ["Curly braces <code>{}</code>", "Percent signs <code>%s</code>", "Dollar signs <code>$</code>", "Angle brackets <code>&lt;&gt;</code>"], ans: 0, explain: "Rust uses <code>{}</code> for Display, <code>{:?}</code> for Debug, <code>{:#?}</code> for pretty Debug." },
+        { q: "How do you create a macro by example in Rust?", opts: ["<code>macro_rules!</code>", "<code>macro!</code>", "<code>#[macro]</code>", "<code>define!</code>"], ans: 0, explain: "<code>macro_rules! name { (pattern) => { expansion }; }</code> defines a declarative macro." },
+        { q: "What does the <code>vec!</code> macro expand to?", opts: ["A <code>Vec::new()</code> with push calls or <code>Vec::from</code>", "An array literal", "A linked list", "A static array"], ans: 0, explain: "<code>vec![1,2,3]</code> creates a heap-allocated <code>Vec</code> with the given elements." },
+        { q: "What is the difference between <code>println!</code> and <code>print!</code>?", opts: ["<code>println!</code> adds a newline, <code>print!</code> does not", "<code>print!</code> is for debugging only", "<code>println!</code> returns a String", "There is no difference"], ans: 0, explain: "<code>println!</code> appends a newline character; <code>print!</code> outputs text without a trailing newline." },
+
+        // Unsafe
+        { q: "Which operations require <code>unsafe</code>?", opts: ["Dereferencing raw pointers, calling unsafe functions, accessing mutable statics", "All pointer operations", "All heap allocations", "Any use of generics"], ans: 0, explain: "Unsafe allows five specific superpowers including raw pointer dereferencing, FFI calls, and mutable static access." },
+        { q: "What are raw pointers in Rust?", opts: ["<code>*const T</code> and <code>*mut T</code> — pointers without borrowing rules", "Regular references without lifetimes", "Pointers that are automatically freed", "Smart pointers without reference counting"], ans: 0, explain: "Raw pointers can be null, don't guarantee valid memory, and aren't subject to borrow checking." },
+        { q: "Does <code>unsafe</code> disable the borrow checker?", opts: ["No — it only unlocks specific additional capabilities", "Yes — all safety checks are disabled", "Only for the unsafe block", "Yes — for the entire function"], ans: 0, explain: "The borrow checker still runs inside <code>unsafe</code>. You only gain access to five specific unsafe operations." },
+
+        // Lifetimes
+        { q: "What are lifetime elision rules?", opts: ["Rules that let the compiler infer lifetimes in common cases", "Rules for when references expire", "Rules for garbage collection timing", "Rules for static variable lifetimes"], ans: 0, explain: "The compiler applies three elision rules to function signatures, often making explicit lifetime annotations unnecessary." },
+        { q: "What does <code>fn longest&lt;'a&gt;(x: &'a str, y: &'a str) -> &'a str</code> mean?", opts: ["The return value lives as long as the shorter-lived input", "All three references have the same lifetime", "The function creates a new string", "The inputs must be string literals"], ans: 0, explain: "The returned reference is guaranteed to be valid for the lifetime <code>'a</code>, which is the overlap of both inputs' lifetimes." },
+        { q: "Can structs hold references?", opts: ["Yes, but they need lifetime annotations", "No — structs can only own data", "Only with <code>Box</code>", "Only static references"], ans: 0, explain: "<code>struct Excerpt&lt;'a&gt; { part: &'a str }</code> holds a reference with a named lifetime." },
+
+        // Collections
+        { q: "What does <code>Vec::with_capacity(n)</code> do?", opts: ["Pre-allocates space for n elements without adding any", "Creates a vector with n zeros", "Limits the vector to n elements", "Creates n empty vectors"], ans: 0, explain: "It avoids repeated reallocations when you know the approximate size in advance." },
+        { q: "How do you safely access a <code>Vec</code> element by index?", opts: ["<code>.get(index)</code> which returns <code>Option&lt;&T&gt;</code>", "<code>.at(index)</code>", "<code>.safe_index(index)</code>", "<code>.try_get(index)</code>"], ans: 0, explain: "<code>vec.get(i)</code> returns <code>Some(&element)</code> or <code>None</code> instead of panicking on out-of-bounds." },
+        { q: "What is a <code>VecDeque</code>?", opts: ["A double-ended queue with efficient push/pop at both ends", "A vector of vectors", "A sorted vector", "A vector with deduplication"], ans: 0, explain: "<code>VecDeque</code> uses a ring buffer for O(1) operations at both the front and back." },
+        { q: "What does <code>HashMap::contains_key()</code> return?", opts: ["A <code>bool</code>", "An <code>Option</code>", "A <code>Result</code>", "The value if found"], ans: 0, explain: "<code>contains_key(&key)</code> returns <code>true</code> if the map contains the specified key." },
+
+        // Generics
+        { q: "Can you have multiple generic type parameters?", opts: ["Yes — e.g. <code>fn foo&lt;T, U&gt;(t: T, u: U)</code>", "No — only one is allowed", "Only in struct definitions", "Only with trait bounds"], ans: 0, explain: "You can use as many generic parameters as needed: <code>fn mix&lt;T, U&gt;(a: T, b: U)</code>." },
+        { q: "What is monomorphization?", opts: ["The compiler generates concrete code for each type used with a generic", "Converting generics to trait objects", "Removing unused type parameters", "A runtime optimization"], ans: 0, explain: "Rust compiles <code>Vec&lt;i32&gt;</code> and <code>Vec&lt;String&gt;</code> as separate specialized implementations at compile time." },
+        { q: "What does <code>where</code> clause do in function signatures?", opts: ["Specifies trait bounds in a more readable way", "Defines SQL-like queries", "Filters generic parameters", "Declares local variables"], ans: 0, explain: "<code>fn foo&lt;T&gt;(t: T) where T: Display + Clone</code> is equivalent to <code>fn foo&lt;T: Display + Clone&gt;</code>." },
+
+        // Testing
+        { q: "What does <code>#[cfg(test)]</code> do?", opts: ["Compiles the module only when running tests", "Configures test timeouts", "Marks tests as integration tests", "Enables debug assertions"], ans: 0, explain: "<code>#[cfg(test)]</code> tells the compiler to only include this code during <code>cargo test</code>." },
+        { q: "What does <code>assert!</code> check?", opts: ["That the expression evaluates to <code>true</code>", "That two values are equal", "That code panics", "That a Result is Ok"], ans: 0, explain: "<code>assert!(condition)</code> panics if the condition is <code>false</code>, failing the test." },
+        { q: "How do you test private functions in Rust?", opts: ["Tests in a <code>#[cfg(test)]</code> module inside the same file can access private items", "You can't — only public functions are testable", "Using the <code>#[test_private]</code> attribute", "By making them temporarily public"], ans: 0, explain: "Child modules can access private items of their parent, so test modules defined inline can test private functions." },
+
+        // Cargo
+        { q: "What does <code>cargo build --release</code> do?", opts: ["Compiles with optimizations enabled", "Publishes the crate", "Creates a release branch", "Runs release tests"], ans: 0, explain: "The <code>--release</code> flag uses the release profile with optimizations, producing faster but slower-to-compile binaries." },
+        { q: "What is <code>Cargo.lock</code> used for?", opts: ["Pinning exact dependency versions for reproducible builds", "Locking the project from edits", "Storing compilation cache", "Managing feature flags"], ans: 0, explain: "<code>Cargo.lock</code> records exact versions of all dependencies used in a build." },
+        { q: "What does <code>cargo clippy</code> do?", opts: ["Runs a linter with Rust-specific suggestions", "Copies files to clipboard", "Cleans build artifacts", "Clips long error messages"], ans: 0, explain: "Clippy provides additional lint warnings for common mistakes and non-idiomatic Rust patterns." },
+        { q: "What does <code>cargo fmt</code> do?", opts: ["Formats code according to Rust style guidelines", "Converts between file formats", "Formats error messages", "Creates formatted documentation"], ans: 0, explain: "<code>cargo fmt</code> runs <code>rustfmt</code> to automatically format your Rust source code." },
+
+        // Type system
+        { q: "What is a <code>type</code> alias in Rust?", opts: ["A new name for an existing type — e.g. <code>type Km = i32;</code>", "A generic type", "A trait object", "A macro"], ans: 0, explain: "Type aliases don't create new types — <code>type Thunk = Box&lt;dyn Fn() + Send + 'static&gt;;</code> is just a shorter name." },
+        { q: "What is a zero-sized type (ZST)?", opts: ["A type that takes up no memory, like <code>()</code> or empty structs", "A type representing zero", "A null pointer type", "An uninitialized type"], ans: 0, explain: "ZSTs like <code>()</code> and <code>struct Marker;</code> occupy no memory and are optimized away." },
+        { q: "What does <code>as</code> do in Rust?", opts: ["Performs type casting between primitive types", "Creates an alias", "Imports a module", "Asserts a condition"], ans: 0, explain: "<code>let x = 65u8 as char;</code> casts between numeric types or to char." },
+        { q: "What is <code>From</code> and <code>Into</code>?", opts: ["Traits for type conversions — implementing <code>From</code> gives <code>Into</code> for free", "Macros for input/output", "Keywords for imports and exports", "Functions for serialization"], ans: 0, explain: "<code>impl From&lt;String&gt; for MyType</code> automatically provides <code>String::into()</code> for <code>MyType</code>." },
+      ];
+
+      // ─── RANDOM QUIZ ───
+      let randomState = { correct: 0, total: 0, currentQ: null, answered: false, usedIndices: new Set() };
+
+      function getAllQuestions() {
+        const all = [];
+        levels.forEach(lvl => lvl.questions.forEach(q => all.push(q)));
+        extraQuestions.forEach(q => all.push(q));
+        return all;
+      }
+
+      function pickRandomQuestion() {
+        const all = getAllQuestions();
+        if (randomState.usedIndices.size >= all.length) {
+          randomState.usedIndices.clear();
+        }
+        let idx;
+        do { idx = Math.floor(Math.random() * all.length); }
+        while (randomState.usedIndices.has(idx));
+        randomState.usedIndices.add(idx);
+        return shuffleOptions([all[idx]])[0];
+      }
+
+      function startRandomQuiz() {
+        randomState = { correct: 0, total: 0, currentQ: null, answered: false, usedIndices: new Set() };
+        showScreen("randomScreen");
+        nextRandomQuestion();
+      }
+
+      function nextRandomQuestion() {
+        randomState.currentQ = pickRandomQuestion();
+        randomState.answered = false;
+        document.getElementById("randomNextBtn").style.display = "none";
+        document.getElementById("randomScore").textContent =
+          `${randomState.correct} correct / ${randomState.total} answered`;
+        const q = randomState.currentQ;
+        const keys = ["A", "B", "C", "D"];
+        document.getElementById("randomQuestionArea").innerHTML = `
+    <div class="question-card">
+      <div class="question-number">Question #${randomState.total + 1}</div>
+      <div class="question-text">${q.q}</div>
+      <div class="options">
+        ${q.opts.map((opt, i) => `
+          <button class="option-btn" onclick="selectRandomAnswer(${i})" data-idx="${i}">
+            <span class="opt-key">${keys[i]}</span>
+            <span>${opt}</span>
+          </button>
+        `).join("")}
+      </div>
+      <div id="randomExplanationSlot"></div>
+    </div>
+  `;
+      }
+
+      function selectRandomAnswer(idx) {
+        if (randomState.answered) return;
+        randomState.answered = true;
+        randomState.total++;
+        const q = randomState.currentQ;
+        const btns = document.querySelectorAll("#randomQuestionArea .option-btn");
+        btns.forEach((btn, i) => {
+          btn.classList.add("disabled");
+          if (i === q.ans) btn.classList.add("correct");
+          if (i === idx && idx !== q.ans) btn.classList.add("wrong");
+        });
+        if (idx === q.ans) randomState.correct++;
+        document.getElementById("randomScore").textContent =
+          `${randomState.correct} correct / ${randomState.total} answered`;
+        document.getElementById("randomExplanationSlot").innerHTML = `
+    <div class="explanation-box">
+      ${idx === q.ans ? "✅" : "❌"} ${q.explain}
+    </div>
+  `;
+        document.getElementById("randomNextBtn").style.display = "inline-block";
+      }
+
+      function quitRandomQuiz() {
+        showScreen("levelSelect");
+      }
+
+      // ── Keyboard support for random mode ──
+      document.addEventListener("keydown", (e) => {
+        const randomActive = document.getElementById("randomScreen").classList.contains("active");
+        if (!randomActive) return;
+        const keyMap = { a: 0, b: 1, c: 2, d: 3, 1: 0, 2: 1, 3: 2, 4: 3 };
+        if (e.key.toLowerCase() in keyMap && !randomState.answered) {
+          selectRandomAnswer(keyMap[e.key.toLowerCase()]);
+        }
+        if ((e.key === "Enter" || e.key === " ") && randomState.answered) {
+          e.preventDefault();
+          nextRandomQuestion();
         }
       });
 
