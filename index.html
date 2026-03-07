@@ -1,0 +1,2293 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rust Book Quiz — Ferris Challenge</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --rust-orange: #f74c00;
+        --rust-dark: #1a1a2e;
+        --rust-darker: #0f0f1a;
+        --rust-accent: #ff8c42;
+        --rust-gold: #ffd700;
+        --crate-brown: #8b5e3c;
+        --terminal-green: #00ff88;
+        --correct: #00e676;
+        --wrong: #ff1744;
+        --bg-card: rgba(26, 26, 46, 0.85);
+        --text-primary: #e8e6e3;
+        --text-dim: #8a8a9a;
+        --glow-orange: 0 0 30px rgba(247, 76, 0, 0.3);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "IBM Plex Mono", monospace;
+        background: var(--rust-darker);
+        color: var(--text-primary);
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      .bg-grid {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        background-image:
+          linear-gradient(rgba(247, 76, 0, 0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(247, 76, 0, 0.03) 1px, transparent 1px);
+        background-size: 40px 40px;
+      }
+
+      .bg-glow {
+        position: fixed;
+        z-index: 0;
+        pointer-events: none;
+        width: 600px;
+        height: 600px;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle,
+          rgba(247, 76, 0, 0.08),
+          transparent 70%
+        );
+        top: -200px;
+        right: -200px;
+        animation: float 12s ease-in-out infinite alternate;
+      }
+
+      .bg-glow-2 {
+        position: fixed;
+        z-index: 0;
+        pointer-events: none;
+        width: 500px;
+        height: 500px;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle,
+          rgba(0, 255, 136, 0.04),
+          transparent 70%
+        );
+        bottom: -200px;
+        left: -100px;
+        animation: float 15s ease-in-out infinite alternate-reverse;
+      }
+
+      @keyframes float {
+        0% {
+          transform: translate(0, 0) scale(1);
+        }
+        100% {
+          transform: translate(40px, 30px) scale(1.1);
+        }
+      }
+
+      #app {
+        position: relative;
+        z-index: 1;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 30px 20px;
+        min-height: 100vh;
+      }
+
+      /* ── HEADER ── */
+      .header {
+        text-align: center;
+        padding: 40px 0 30px;
+      }
+
+      .header .logo {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--rust-orange);
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+      }
+
+      .header h1 {
+        font-family: "JetBrains Mono", monospace;
+        font-size: clamp(28px, 5vw, 44px);
+        font-weight: 800;
+        background: linear-gradient(
+          135deg,
+          var(--rust-orange),
+          var(--rust-accent),
+          var(--rust-gold)
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        line-height: 1.2;
+      }
+
+      .header .subtitle {
+        color: var(--text-dim);
+        font-size: 13px;
+        margin-top: 8px;
+        letter-spacing: 1px;
+      }
+
+      .ferris {
+        font-size: 48px;
+        margin: 15px 0;
+        animation: wiggle 2s ease-in-out infinite;
+      }
+
+      @keyframes wiggle {
+        0%,
+        100% {
+          transform: rotate(-3deg);
+        }
+        50% {
+          transform: rotate(3deg);
+        }
+      }
+
+      /* ── STATS BAR ── */
+      .stats-bar {
+        display: flex;
+        gap: 16px;
+        justify-content: center;
+        margin: 20px 0;
+        flex-wrap: wrap;
+      }
+
+      .stat {
+        background: var(--bg-card);
+        border: 1px solid rgba(247, 76, 0, 0.15);
+        border-radius: 10px;
+        padding: 10px 18px;
+        text-align: center;
+        min-width: 100px;
+        backdrop-filter: blur(10px);
+      }
+
+      .stat-value {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--rust-orange);
+      }
+
+      .stat-label {
+        font-size: 10px;
+        color: var(--text-dim);
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        margin-top: 2px;
+      }
+
+      /* ── LEVEL SELECT ── */
+      .screen {
+        display: none;
+        animation: fadeIn 0.4s ease;
+      }
+      .screen.active {
+        display: block;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(15px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .levels-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 12px;
+        margin-top: 20px;
+      }
+
+      .level-card {
+        background: var(--bg-card);
+        border: 1px solid rgba(247, 76, 0, 0.1);
+        border-radius: 12px;
+        padding: 16px 18px;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        position: relative;
+        overflow: hidden;
+        backdrop-filter: blur(10px);
+      }
+
+      .level-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          135deg,
+          rgba(247, 76, 0, 0.05),
+          transparent
+        );
+        opacity: 0;
+        transition: opacity 0.25s;
+      }
+
+      .level-card:hover {
+        border-color: var(--rust-orange);
+        transform: translateY(-2px);
+        box-shadow: var(--glow-orange);
+      }
+
+      .level-card:hover::before {
+        opacity: 1;
+      }
+
+      .level-card.locked {
+        opacity: 0.4;
+        cursor: not-allowed;
+        filter: grayscale(0.5);
+      }
+
+      .level-card.locked:hover {
+        transform: none;
+        border-color: rgba(247, 76, 0, 0.1);
+        box-shadow: none;
+      }
+
+      .level-card.completed {
+        border-color: rgba(0, 230, 118, 0.3);
+      }
+
+      .level-card.completed .level-badge {
+        background: var(--correct);
+        color: var(--rust-darker);
+      }
+
+      .level-num {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        color: var(--rust-orange);
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin-bottom: 5px;
+        position: relative;
+        z-index: 1;
+      }
+
+      .level-title {
+        font-size: 14px;
+        font-weight: 600;
+        position: relative;
+        z-index: 1;
+        line-height: 1.4;
+      }
+
+      .level-badge {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background: rgba(247, 76, 0, 0.2);
+        color: var(--rust-orange);
+        font-size: 10px;
+        font-weight: 700;
+        padding: 3px 8px;
+        border-radius: 6px;
+        font-family: "JetBrains Mono", monospace;
+      }
+
+      .level-card.locked .level-badge {
+        background: rgba(138, 138, 154, 0.2);
+        color: var(--text-dim);
+      }
+
+      /* ── QUIZ SCREEN ── */
+      .quiz-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .quiz-chapter {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+        color: var(--rust-orange);
+        letter-spacing: 2px;
+        text-transform: uppercase;
+      }
+
+      .quiz-progress-text {
+        font-size: 13px;
+        color: var(--text-dim);
+      }
+
+      .progress-bar-container {
+        width: 100%;
+        height: 6px;
+        background: rgba(247, 76, 0, 0.1);
+        border-radius: 3px;
+        margin-bottom: 28px;
+        overflow: hidden;
+      }
+
+      .progress-bar-fill {
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          var(--rust-orange),
+          var(--rust-accent)
+        );
+        border-radius: 3px;
+        transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .question-card {
+        background: var(--bg-card);
+        border: 1px solid rgba(247, 76, 0, 0.12);
+        border-radius: 16px;
+        padding: 30px;
+        backdrop-filter: blur(10px);
+        margin-bottom: 20px;
+      }
+
+      .question-number {
+        font-size: 11px;
+        color: var(--text-dim);
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin-bottom: 12px;
+      }
+
+      .question-text {
+        font-size: 17px;
+        font-weight: 500;
+        line-height: 1.6;
+        margin-bottom: 24px;
+      }
+
+      .question-text code {
+        font-family: "JetBrains Mono", monospace;
+        background: rgba(247, 76, 0, 0.1);
+        color: var(--rust-accent);
+        padding: 2px 7px;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+
+      .options {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .option-btn {
+        background: rgba(247, 76, 0, 0.04);
+        border: 1px solid rgba(247, 76, 0, 0.12);
+        border-radius: 10px;
+        padding: 14px 18px;
+        color: var(--text-primary);
+        font-size: 14px;
+        font-family: "IBM Plex Mono", monospace;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-align: left;
+        line-height: 1.5;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+      }
+
+      .option-btn:hover:not(.disabled) {
+        border-color: var(--rust-orange);
+        background: rgba(247, 76, 0, 0.08);
+        transform: translateX(4px);
+      }
+
+      .option-btn .opt-key {
+        flex-shrink: 0;
+        width: 26px;
+        height: 26px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        font-weight: 700;
+        font-size: 12px;
+        background: rgba(247, 76, 0, 0.1);
+        color: var(--rust-orange);
+        transition: all 0.2s;
+      }
+
+      .option-btn.correct {
+        border-color: var(--correct);
+        background: rgba(0, 230, 118, 0.08);
+        animation: correctPulse 0.5s ease;
+      }
+
+      .option-btn.correct .opt-key {
+        background: var(--correct);
+        color: var(--rust-darker);
+      }
+
+      .option-btn.wrong {
+        border-color: var(--wrong);
+        background: rgba(255, 23, 68, 0.08);
+        animation: shake 0.4s ease;
+      }
+
+      .option-btn.wrong .opt-key {
+        background: var(--wrong);
+        color: #fff;
+      }
+
+      .option-btn.disabled {
+        pointer-events: none;
+        opacity: 0.5;
+      }
+      .option-btn.correct.disabled,
+      .option-btn.wrong.disabled {
+        opacity: 1;
+      }
+
+      @keyframes correctPulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.015);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      @keyframes shake {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        25% {
+          transform: translateX(-6px);
+        }
+        75% {
+          transform: translateX(6px);
+        }
+      }
+
+      .explanation-box {
+        margin-top: 16px;
+        padding: 14px 18px;
+        background: rgba(0, 255, 136, 0.04);
+        border-left: 3px solid var(--terminal-green);
+        border-radius: 0 8px 8px 0;
+        font-size: 13px;
+        line-height: 1.6;
+        color: var(--text-dim);
+        animation: fadeIn 0.3s ease;
+      }
+
+      .explanation-box code {
+        font-family: "JetBrains Mono", monospace;
+        background: rgba(247, 76, 0, 0.1);
+        color: var(--rust-accent);
+        padding: 1px 5px;
+        border-radius: 3px;
+        font-size: 12px;
+      }
+
+      .next-btn,
+      .back-btn {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 1px;
+        padding: 12px 28px;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        text-transform: uppercase;
+        border: none;
+      }
+
+      .next-btn {
+        background: linear-gradient(
+          135deg,
+          var(--rust-orange),
+          var(--rust-accent)
+        );
+        color: #fff;
+        margin-top: 20px;
+      }
+
+      .next-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 25px rgba(247, 76, 0, 0.3);
+      }
+
+      .back-btn {
+        background: transparent;
+        border: 1px solid rgba(247, 76, 0, 0.25) !important;
+        color: var(--text-dim);
+      }
+
+      .back-btn:hover {
+        color: var(--rust-orange);
+        border-color: var(--rust-orange) !important;
+      }
+
+      .btn-row {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        margin-top: 20px;
+        flex-wrap: wrap;
+      }
+
+      /* ── RESULTS SCREEN ── */
+      .results-card {
+        background: var(--bg-card);
+        border: 1px solid rgba(247, 76, 0, 0.12);
+        border-radius: 16px;
+        padding: 40px;
+        text-align: center;
+        backdrop-filter: blur(10px);
+      }
+
+      .results-score {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 64px;
+        font-weight: 800;
+        background: linear-gradient(
+          135deg,
+          var(--rust-orange),
+          var(--rust-gold)
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .results-label {
+        font-size: 14px;
+        color: var(--text-dim);
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin: 8px 0 20px;
+      }
+
+      .results-msg {
+        font-size: 16px;
+        margin-bottom: 24px;
+        line-height: 1.6;
+      }
+
+      .star {
+        display: inline-block;
+        font-size: 28px;
+        margin: 0 3px;
+      }
+      .star.filled {
+        animation: starPop 0.4s ease backwards;
+      }
+      .star.filled:nth-child(2) {
+        animation-delay: 0.15s;
+      }
+      .star.filled:nth-child(3) {
+        animation-delay: 0.3s;
+      }
+
+      @keyframes starPop {
+        0% {
+          transform: scale(0) rotate(-30deg);
+          opacity: 0;
+        }
+        60% {
+          transform: scale(1.3) rotate(5deg);
+        }
+        100% {
+          transform: scale(1) rotate(0);
+          opacity: 1;
+        }
+      }
+
+      /* ── SCROLLBAR ── */
+      ::-webkit-scrollbar {
+        width: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: rgba(247, 76, 0, 0.2);
+        border-radius: 3px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: rgba(247, 76, 0, 0.4);
+      }
+
+      @media (max-width: 500px) {
+        .question-card {
+          padding: 20px;
+        }
+        .levels-grid {
+          grid-template-columns: 1fr;
+        }
+        .stats-bar {
+          gap: 8px;
+        }
+        .stat {
+          min-width: 80px;
+          padding: 8px 12px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bg-grid"></div>
+    <div class="bg-glow"></div>
+    <div class="bg-glow-2"></div>
+
+    <div id="app">
+      <div class="header">
+        <div class="logo">// The Ferris Challenge</div>
+        <h1>Rust Book Quiz</h1>
+        <div class="subtitle">
+          Master "The Rust Programming Language" — chapter by chapter
+        </div>
+        <div class="ferris">🦀</div>
+      </div>
+
+      <div class="stats-bar">
+        <div class="stat">
+          <div class="stat-value" id="totalScore">0</div>
+          <div class="stat-label">Score</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" id="totalCompleted">0</div>
+          <div class="stat-label">Completed</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" id="totalStars">0</div>
+          <div class="stat-label">★ Stars</div>
+        </div>
+      </div>
+
+      <!-- Level Select -->
+      <div class="screen active" id="levelSelect">
+        <div class="levels-grid" id="levelsGrid"></div>
+      </div>
+
+      <!-- Quiz Screen -->
+      <div class="screen" id="quizScreen">
+        <div class="quiz-header">
+          <div class="quiz-chapter" id="quizChapter"></div>
+          <div class="quiz-progress-text" id="quizProgressText"></div>
+        </div>
+        <div class="progress-bar-container">
+          <div class="progress-bar-fill" id="progressBar"></div>
+        </div>
+        <div id="questionArea"></div>
+        <div class="btn-row">
+          <button class="back-btn" onclick="showScreen('levelSelect')">
+            ← Levels
+          </button>
+          <button
+            class="next-btn"
+            id="nextBtn"
+            style="display: none"
+            onclick="nextQuestion()"
+          >
+            Next →
+          </button>
+        </div>
+      </div>
+
+      <!-- Results Screen -->
+      <div class="screen" id="resultsScreen">
+        <div class="results-card">
+          <div id="resultsStars"></div>
+          <div class="results-score" id="resultsScore"></div>
+          <div class="results-label">Correct Answers</div>
+          <div class="results-msg" id="resultsMsg"></div>
+          <div class="btn-row" style="justify-content: center">
+            <button class="back-btn" onclick="showScreen('levelSelect')">
+              ← Levels
+            </button>
+            <button class="next-btn" onclick="retryLevel()">Retry 🔄</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // ─── QUIZ DATA: one level per Rust Book chapter ───
+      const levels = [
+        {
+          chapter: 1,
+          title: "Getting Started",
+          questions: [
+            {
+              q: "What is the command to create a new Rust project with Cargo?",
+              opts: [
+                "<code>cargo new</code>",
+                "<code>cargo create</code>",
+                "<code>rustc init</code>",
+                "<code>rust new</code>",
+              ],
+              ans: 0,
+              explain:
+                "<code>cargo new project_name</code> creates a new project directory with a <code>Cargo.toml</code> and <code>src/main.rs</code>.",
+            },
+            {
+              q: "Which file is the manifest for a Cargo project?",
+              opts: [
+                "<code>Cargo.toml</code>",
+                "<code>Cargo.lock</code>",
+                "<code>rustfmt.toml</code>",
+                "<code>config.rs</code>",
+              ],
+              ans: 0,
+              explain:
+                "<code>Cargo.toml</code> contains metadata, dependencies, and build configuration for the project.",
+            },
+            {
+              q: "What does the <code>rustup</code> tool manage?",
+              opts: [
+                "Rust toolchain installations",
+                "Package publishing",
+                "Code formatting",
+                "Memory allocation",
+              ],
+              ans: 0,
+              explain:
+                "<code>rustup</code> installs and manages Rust compiler versions, targets, and associated tools.",
+            },
+            {
+              q: "What is the entry point function in a Rust program?",
+              opts: [
+                "<code>fn main()</code>",
+                "<code>fn start()</code>",
+                "<code>fn init()</code>",
+                "<code>fn run()</code>",
+              ],
+              ans: 0,
+              explain:
+                "Every Rust binary starts execution at <code>fn main()</code>.",
+            },
+            {
+              q: "Which command compiles and runs a Cargo project?",
+              opts: [
+                "<code>cargo run</code>",
+                "<code>cargo build --execute</code>",
+                "<code>cargo compile</code>",
+                "<code>rustc run</code>",
+              ],
+              ans: 0,
+              explain:
+                "<code>cargo run</code> compiles the project (if needed) and then executes the resulting binary.",
+            },
+          ],
+        },
+        {
+          chapter: 2,
+          title: "Programming a Guessing Game",
+          questions: [
+            {
+              q: "Which crate is commonly used for random number generation in the Guessing Game chapter?",
+              opts: [
+                "<code>rand</code>",
+                "<code>random</code>",
+                "<code>num_rand</code>",
+                "<code>gen</code>",
+              ],
+              ans: 0,
+              explain:
+                "The <code>rand</code> crate provides random number generation via traits like <code>Rng</code>.",
+            },
+            {
+              q: "How do you read user input from stdin in Rust?",
+              opts: [
+                "<code>io::stdin().read_line(&mut s)</code>",
+                "<code>io::read()</code>",
+                "<code>stdin.get_line(s)</code>",
+                "<code>console::input()</code>",
+              ],
+              ans: 0,
+              explain:
+                "<code>std::io::stdin().read_line(&mut string)</code> reads a line of input into a mutable <code>String</code>.",
+            },
+            {
+              q: "What does the <code>match</code> expression do when comparing the guess to the secret?",
+              opts: [
+                "Branches based on the <code>Ordering</code> variant",
+                "Loops until equal",
+                "Throws an exception",
+                "Returns a boolean",
+              ],
+              ans: 0,
+              explain:
+                "A <code>match</code> on <code>cmp</code> returns <code>Less</code>, <code>Greater</code>, or <code>Equal</code> variants of <code>std::cmp::Ordering</code>.",
+            },
+            {
+              q: "What keyword creates an infinite loop in the guessing game?",
+              opts: [
+                "<code>loop</code>",
+                "<code>while true</code>",
+                "<code>for ever</code>",
+                "<code>repeat</code>",
+              ],
+              ans: 0,
+              explain:
+                "<code>loop { }</code> creates an unconditional infinite loop; use <code>break</code> to exit.",
+            },
+            {
+              q: "How do you convert a <code>String</code> to a number type like <code>u32</code>?",
+              opts: [
+                "<code>string.trim().parse()</code>",
+                "<code>string.to_int()</code>",
+                "<code>u32::from_string(s)</code>",
+                "<code>cast(string)</code>",
+              ],
+              ans: 0,
+              explain:
+                "Calling <code>.trim().parse()</code> on a <code>String</code> removes whitespace and parses it into the inferred numeric type.",
+            },
+          ],
+        },
+        {
+          chapter: 3,
+          title: "Common Programming Concepts",
+          questions: [
+            {
+              q: "In Rust, variables are immutable by default. Which keyword makes a variable mutable?",
+              opts: [
+                "<code>mut</code>",
+                "<code>var</code>",
+                "<code>mutable</code>",
+                "<code>let!</code>",
+              ],
+              ans: 0,
+              explain:
+                "Use <code>let mut x = 5;</code> to declare a mutable binding.",
+            },
+            {
+              q: "What is shadowing in Rust?",
+              opts: [
+                "Re-declaring a variable with the same name using <code>let</code>",
+                "Making a variable mutable",
+                "Creating a global variable",
+                "Cloning a variable",
+              ],
+              ans: 0,
+              explain:
+                "Shadowing lets you reuse a name and even change the type, unlike mutation with <code>mut</code>.",
+            },
+            {
+              q: "Which of these is NOT a scalar type in Rust?",
+              opts: [
+                "<code>String</code>",
+                "<code>i32</code>",
+                "<code>bool</code>",
+                "<code>char</code>",
+              ],
+              ans: 0,
+              explain:
+                "Scalar types are integers, floats, booleans, and characters. <code>String</code> is a compound/heap-allocated type.",
+            },
+            {
+              q: "How does Rust handle the return value of a function?",
+              opts: [
+                "The last expression without a semicolon is returned",
+                "You must always use <code>return</code>",
+                "Functions always return <code>()</code>",
+                "With a <code>yield</code> keyword",
+              ],
+              ans: 0,
+              explain:
+                "In Rust, the final expression in a function body (without a semicolon) is implicitly returned.",
+            },
+            {
+              q: "What is the syntax for an <code>if</code> condition in Rust?",
+              opts: [
+                "<code>if condition { }</code> — no parentheses required",
+                "<code>if (condition) { }</code>",
+                "<code>if condition then { }</code>",
+                "<code>when condition { }</code>",
+              ],
+              ans: 0,
+              explain:
+                "Rust's <code>if</code> does not require parentheses around the condition, unlike C or Java.",
+            },
+          ],
+        },
+        {
+          chapter: 4,
+          title: "Understanding Ownership",
+          questions: [
+            {
+              q: "What are the three ownership rules in Rust? (Select the most accurate.)",
+              opts: [
+                "Each value has one owner; only one owner at a time; value is dropped when owner goes out of scope",
+                "Values can have multiple owners; garbage collector cleans up",
+                "Ownership is checked at runtime only",
+                "Values are reference-counted by default",
+              ],
+              ans: 0,
+              explain:
+                "These three rules are the foundation of Rust's memory safety without garbage collection.",
+            },
+            {
+              q: "What happens when you assign a <code>String</code> to another variable?",
+              opts: [
+                "The value is moved and the original is invalidated",
+                "The value is copied automatically",
+                "Both variables share ownership",
+                "A compile error always occurs",
+              ],
+              ans: 0,
+              explain:
+                "Types that don't implement <code>Copy</code> (like <code>String</code>) are moved, making the original variable invalid.",
+            },
+            {
+              q: "What is a reference in Rust denoted by?",
+              opts: [
+                "<code>&</code>",
+                "<code>*</code>",
+                "<code>@</code>",
+                "<code>#</code>",
+              ],
+              ans: 0,
+              explain:
+                "<code>&variable</code> creates an immutable reference (borrow) to the value.",
+            },
+            {
+              q: "How many mutable references to a value can exist at the same time?",
+              opts: [
+                "Exactly one",
+                "Unlimited",
+                "Two",
+                "None — you must clone instead",
+              ],
+              ans: 0,
+              explain:
+                "Rust enforces that only one mutable reference to a particular piece of data exists in a given scope to prevent data races.",
+            },
+            {
+              q: "What is a slice in Rust?",
+              opts: [
+                "A reference to a contiguous sequence of elements in a collection",
+                "A copy of part of an array",
+                "A special type of smart pointer",
+                "A mutable view into heap memory",
+              ],
+              ans: 0,
+              explain:
+                "Slices like <code>&s[0..5]</code> or <code>&arr[1..3]</code> are references to portions of data without taking ownership.",
+            },
+          ],
+        },
+        {
+          chapter: 5,
+          title: "Using Structs",
+          questions: [
+            {
+              q: "How do you define a struct in Rust?",
+              opts: [
+                "<code>struct Name { field: Type }</code>",
+                "<code>class Name { field: Type }</code>",
+                "<code>type Name = { field: Type }</code>",
+                "<code>record Name(field: Type)</code>",
+              ],
+              ans: 0,
+              explain:
+                "Rust uses the <code>struct</code> keyword followed by named fields and their types.",
+            },
+            {
+              q: "What is a tuple struct?",
+              opts: [
+                "A struct with unnamed fields, accessed by index",
+                "A tuple stored on the heap",
+                "A struct that can hold any number of types",
+                "A struct with all optional fields",
+              ],
+              ans: 0,
+              explain:
+                "Tuple structs like <code>struct Color(i32, i32, i32);</code> have types but no field names.",
+            },
+            {
+              q: "What does <code>#[derive(Debug)]</code> do for a struct?",
+              opts: [
+                "Enables printing the struct with <code>{:?}</code>",
+                "Makes the struct mutable",
+                "Adds serialization support",
+                "Generates getters and setters",
+              ],
+              ans: 0,
+              explain:
+                "Deriving <code>Debug</code> auto-implements the <code>Debug</code> trait, allowing formatted debug output.",
+            },
+            {
+              q: "What is the <code>impl</code> block used for?",
+              opts: [
+                "Defining methods and associated functions for a type",
+                "Importing modules",
+                "Implementing interfaces from other languages",
+                "Declaring implementations of generics",
+              ],
+              ans: 0,
+              explain:
+                "<code>impl StructName { }</code> is where you define methods (with <code>&self</code>) and associated functions.",
+            },
+            {
+              q: "What does <code>&self</code> mean as the first parameter of a method?",
+              opts: [
+                "An immutable borrow of the instance",
+                "A mutable copy of the instance",
+                "A static reference",
+                "An owned, consumed instance",
+              ],
+              ans: 0,
+              explain:
+                "<code>&self</code> is shorthand for <code>self: &Self</code>, borrowing the instance immutably.",
+            },
+          ],
+        },
+        {
+          chapter: 6,
+          title: "Enums and Pattern Matching",
+          questions: [
+            {
+              q: "What makes Rust enums more powerful than C-style enums?",
+              opts: [
+                "Variants can hold data of different types",
+                "They can only hold integer values",
+                "They support inheritance",
+                "They are automatically serializable",
+              ],
+              ans: 0,
+              explain:
+                "Rust enum variants can contain tuples, structs, or no data — making them algebraic data types.",
+            },
+            {
+              q: "What is the <code>Option&lt;T&gt;</code> enum used for?",
+              opts: [
+                "Representing a value that may or may not exist",
+                "Error handling",
+                "Concurrent access control",
+                "Type casting",
+              ],
+              ans: 0,
+              explain:
+                "<code>Option&lt;T&gt;</code> has variants <code>Some(T)</code> and <code>None</code>, replacing null pointers safely.",
+            },
+            {
+              q: "What happens if a <code>match</code> expression is not exhaustive?",
+              opts: [
+                "Compile-time error",
+                "Runtime panic",
+                "Returns <code>None</code>",
+                "Falls through silently",
+              ],
+              ans: 0,
+              explain:
+                "Rust's <code>match</code> must cover all possible patterns; the compiler will reject non-exhaustive matches.",
+            },
+            {
+              q: "What is the <code>_</code> pattern used for in <code>match</code>?",
+              opts: [
+                "A catch-all that matches any value",
+                "Ignoring the entire match block",
+                "Matching only <code>None</code>",
+                "A variable named underscore",
+              ],
+              ans: 0,
+              explain:
+                "<code>_</code> is a wildcard pattern that matches anything and is used as a default arm.",
+            },
+            {
+              q: "When is <code>if let</code> preferred over <code>match</code>?",
+              opts: [
+                "When you only care about one specific pattern",
+                "When all variants must be handled",
+                "When performance matters",
+                "When using nested enums",
+              ],
+              ans: 0,
+              explain:
+                "<code>if let Some(val) = expr { }</code> is syntactic sugar for a <code>match</code> that only handles one case.",
+            },
+          ],
+        },
+        {
+          chapter: 7,
+          title: "Packages, Crates, and Modules",
+          questions: [
+            {
+              q: "What is a crate in Rust?",
+              opts: [
+                "The smallest unit of compilation — a binary or library",
+                "A single source file",
+                "A package manager",
+                "A folder of modules",
+              ],
+              ans: 0,
+              explain:
+                "A crate is either a binary crate (with <code>main</code>) or a library crate, and is the root of the module tree.",
+            },
+            {
+              q: "What keyword declares a module in Rust?",
+              opts: [
+                "<code>mod</code>",
+                "<code>module</code>",
+                "<code>use</code>",
+                "<code>import</code>",
+              ],
+              ans: 0,
+              explain:
+                "The <code>mod</code> keyword declares a module, either inline or by referencing a file.",
+            },
+            {
+              q: "Items in a module are private by default. What keyword makes them public?",
+              opts: [
+                "<code>pub</code>",
+                "<code>public</code>",
+                "<code>export</code>",
+                "<code>open</code>",
+              ],
+              ans: 0,
+              explain:
+                "<code>pub</code> before a function, struct, or field makes it accessible outside the module.",
+            },
+            {
+              q: "What does the <code>use</code> keyword do?",
+              opts: [
+                "Brings a path into scope so you can call items with shorter names",
+                "Imports an entire crate's source code",
+                "Creates an alias for a type",
+                "Declares a dependency",
+              ],
+              ans: 0,
+              explain:
+                "<code>use std::collections::HashMap;</code> brings <code>HashMap</code> into scope for convenience.",
+            },
+            {
+              q: "What is <code>super</code> used for in module paths?",
+              opts: [
+                "Refers to the parent module",
+                "Calls the superclass constructor",
+                "Accesses global state",
+                "Overrides a trait method",
+              ],
+              ans: 0,
+              explain:
+                "<code>super</code> navigates to the parent module, similar to <code>..</code> in file paths.",
+            },
+          ],
+        },
+        {
+          chapter: 8,
+          title: "Common Collections",
+          questions: [
+            {
+              q: "Which macro creates a new <code>Vec</code> with initial values?",
+              opts: [
+                "<code>vec![1, 2, 3]</code>",
+                "<code>Vec::from([1, 2, 3])</code>",
+                "<code>array![1, 2, 3]</code>",
+                "<code>list!(1, 2, 3)</code>",
+              ],
+              ans: 0,
+              explain:
+                "The <code>vec!</code> macro is the idiomatic way to create a vector with initial elements.",
+            },
+            {
+              q: "What is the difference between <code>String</code> and <code>&str</code>?",
+              opts: [
+                "<code>String</code> is owned and heap-allocated; <code>&str</code> is a borrowed slice",
+                "They are exactly the same type",
+                "<code>&str</code> is mutable; <code>String</code> is not",
+                "<code>String</code> is only for ASCII",
+              ],
+              ans: 0,
+              explain:
+                "<code>String</code> is a growable, owned buffer. <code>&str</code> is an immutable reference to string data.",
+            },
+            {
+              q: "How do you insert a key-value pair into a <code>HashMap</code>?",
+              opts: [
+                "<code>map.insert(key, value)</code>",
+                "<code>map.put(key, value)</code>",
+                "<code>map[key] = value</code>",
+                "<code>map.add(key, value)</code>",
+              ],
+              ans: 0,
+              explain:
+                "The <code>.insert()</code> method adds or updates a key-value pair in the hash map.",
+            },
+            {
+              q: "What does <code>entry().or_insert()</code> do on a HashMap?",
+              opts: [
+                "Inserts the value only if the key doesn't already exist",
+                "Always overwrites the existing value",
+                "Deletes the entry if it exists",
+                "Returns an error if the key exists",
+              ],
+              ans: 0,
+              explain:
+                "The entry API provides efficient insert-if-absent semantics without double lookups.",
+            },
+            {
+              q: "Rust strings do NOT support direct indexing by integer. Why?",
+              opts: [
+                "Because UTF-8 characters can be multi-byte",
+                "For performance reasons only",
+                "Because strings are immutable",
+                "It's a planned feature not yet implemented",
+              ],
+              ans: 0,
+              explain:
+                "UTF-8 encoding means a character might span 1–4 bytes, so indexing by byte position could split a character.",
+            },
+          ],
+        },
+        {
+          chapter: 9,
+          title: "Error Handling",
+          questions: [
+            {
+              q: "What are the two main categories of errors in Rust?",
+              opts: [
+                "Recoverable (<code>Result</code>) and unrecoverable (<code>panic!</code>)",
+                "Checked and unchecked exceptions",
+                "Compile-time and runtime errors",
+                "Syntax and logic errors",
+              ],
+              ans: 0,
+              explain:
+                "Rust uses <code>Result&lt;T, E&gt;</code> for recoverable errors and <code>panic!</code> for unrecoverable ones.",
+            },
+            {
+              q: "What does the <code>?</code> operator do?",
+              opts: [
+                "Returns the error early if <code>Result</code> is <code>Err</code>, otherwise unwraps <code>Ok</code>",
+                "Checks if a value is <code>None</code>",
+                "Converts any type to a <code>Result</code>",
+                "Silently ignores errors",
+              ],
+              ans: 0,
+              explain:
+                "The <code>?</code> operator propagates errors upward, replacing verbose <code>match</code> blocks for error handling.",
+            },
+            {
+              q: "What happens when <code>unwrap()</code> is called on an <code>Err</code>?",
+              opts: [
+                "The program panics",
+                "It returns a default value",
+                "It returns <code>None</code>",
+                "It logs a warning",
+              ],
+              ans: 0,
+              explain:
+                "<code>unwrap()</code> will call <code>panic!</code> if the <code>Result</code> is <code>Err</code> (or <code>Option</code> is <code>None</code>).",
+            },
+            {
+              q: "When should you use <code>panic!</code> over returning <code>Result</code>?",
+              opts: [
+                "When the error represents a bug or unrecoverable state",
+                "Whenever an error occurs",
+                "Only in test code",
+                "Never — always use <code>Result</code>",
+              ],
+              ans: 0,
+              explain:
+                "The book advises using <code>panic!</code> for programming errors; use <code>Result</code> for expected failure conditions.",
+            },
+            {
+              q: 'What does <code>expect("message")</code> do compared to <code>unwrap()</code>?',
+              opts: [
+                "Same as <code>unwrap()</code> but with a custom panic message",
+                "Returns the message string on error",
+                "Logs the message without panicking",
+                "Converts the error into the message",
+              ],
+              ans: 0,
+              explain:
+                "<code>expect()</code> is like <code>unwrap()</code> but lets you provide context in the panic message for easier debugging.",
+            },
+          ],
+        },
+        {
+          chapter: 10,
+          title: "Generics, Traits, and Lifetimes",
+          questions: [
+            {
+              q: "What is the syntax for a generic function in Rust?",
+              opts: [
+                "<code>fn name&lt;T&gt;(param: T)</code>",
+                "<code>fn name(param: generic)</code>",
+                "<code>fn&lt;T&gt; name(param: T)</code>",
+                "<code>fn name(param: any)</code>",
+              ],
+              ans: 0,
+              explain:
+                "Generic type parameters go in angle brackets after the function name: <code>fn largest&lt;T&gt;(list: &[T]) -> &T</code>.",
+            },
+            {
+              q: "What is a trait in Rust?",
+              opts: [
+                "A way to define shared behavior (similar to interfaces)",
+                "A type of smart pointer",
+                "A memory allocation strategy",
+                "A macro system",
+              ],
+              ans: 0,
+              explain:
+                "Traits define method signatures that types can implement, enabling polymorphism.",
+            },
+            {
+              q: "What does a lifetime annotation like <code>'a</code> specify?",
+              opts: [
+                "The relationship between the lifetimes of references",
+                "How long a value lives on the heap",
+                "The duration of program execution",
+                "A timeout for async operations",
+              ],
+              ans: 0,
+              explain:
+                "Lifetime annotations tell the compiler how the lifetimes of multiple references relate to each other.",
+            },
+            {
+              q: "What is the <code>'static</code> lifetime?",
+              opts: [
+                "The reference can live for the entire program duration",
+                "A static variable declaration",
+                "A compile-time constant",
+                "An immutable global reference",
+              ],
+              ans: 0,
+              explain:
+                "<code>'static</code> means the data is available for the whole program — like string literals or leaked allocations.",
+            },
+            {
+              q: "What are trait bounds used for?",
+              opts: [
+                "Restricting generic types to those implementing specific traits",
+                "Setting memory limits",
+                "Defining array boundaries",
+                "Limiting recursion depth",
+              ],
+              ans: 0,
+              explain:
+                "Trait bounds like <code>T: Display + Clone</code> constrain generics to types with the required behavior.",
+            },
+          ],
+        },
+        {
+          chapter: 11,
+          title: "Writing Automated Tests",
+          questions: [
+            {
+              q: "What attribute marks a function as a test in Rust?",
+              opts: [
+                "<code>#[test]</code>",
+                "<code>#[unittest]</code>",
+                "<code>@Test</code>",
+                "<code>test fn</code>",
+              ],
+              ans: 0,
+              explain:
+                "The <code>#[test]</code> attribute tells the test runner to execute that function as a test.",
+            },
+            {
+              q: "Which macro checks that two values are equal in a test?",
+              opts: [
+                "<code>assert_eq!</code>",
+                "<code>check_equal!</code>",
+                "<code>test_eq!</code>",
+                "<code>expect_eq!</code>",
+              ],
+              ans: 0,
+              explain:
+                "<code>assert_eq!(left, right)</code> panics with a diff message if the values are not equal.",
+            },
+            {
+              q: "What attribute tests that code panics as expected?",
+              opts: [
+                "<code>#[should_panic]</code>",
+                "<code>#[expect_panic]</code>",
+                "<code>#[panics]</code>",
+                "<code>#[catch_panic]</code>",
+              ],
+              ans: 0,
+              explain:
+                '<code>#[should_panic]</code> passes the test only if the function panics. You can add <code>expected = "msg"</code> too.',
+            },
+            {
+              q: "Where do integration tests go in a Cargo project?",
+              opts: [
+                "In a <code>tests/</code> directory at the project root",
+                "Inside <code>src/tests.rs</code>",
+                "In <code>Cargo.toml</code>",
+                "In a <code>test/</code> subdirectory of <code>src</code>",
+              ],
+              ans: 0,
+              explain:
+                "Integration tests live in the top-level <code>tests/</code> directory; each file is compiled as a separate crate.",
+            },
+            {
+              q: 'How do you run only tests whose name contains "ownership"?',
+              opts: [
+                "<code>cargo test ownership</code>",
+                "<code>cargo test --filter ownership</code>",
+                "<code>cargo test -name ownership</code>",
+                "<code>rustc --test ownership</code>",
+              ],
+              ans: 0,
+              explain:
+                "Passing a string to <code>cargo test</code> filters test names containing that string.",
+            },
+          ],
+        },
+        {
+          chapter: 12,
+          title: "An I/O Project: Building a CLI Program",
+          questions: [
+            {
+              q: "How does the <code>minigrep</code> project read command-line arguments?",
+              opts: [
+                "<code>std::env::args()</code>",
+                "<code>std::io::args()</code>",
+                "<code>std::cli::read()</code>",
+                "<code>std::os::argv()</code>",
+              ],
+              ans: 0,
+              explain:
+                "<code>std::env::args()</code> returns an iterator over the command-line arguments as strings.",
+            },
+            {
+              q: "What function reads a file's contents into a <code>String</code>?",
+              opts: [
+                "<code>fs::read_to_string()</code>",
+                "<code>File::read_all()</code>",
+                "<code>io::read_file()</code>",
+                "<code>open(path).text()</code>",
+              ],
+              ans: 0,
+              explain:
+                "<code>std::fs::read_to_string(path)</code> is a convenient function that opens, reads, and returns the file content.",
+            },
+            {
+              q: "Why does the chapter refactor logic out of <code>main</code>?",
+              opts: [
+                "To improve testability and separation of concerns",
+                "To reduce compilation time",
+                "Because <code>main</code> has a line limit",
+                "To enable multi-threading",
+              ],
+              ans: 0,
+              explain:
+                "The book teaches extracting logic into a library for unit testing and cleaner architecture.",
+            },
+            {
+              q: "How does minigrep handle the case-insensitive search option?",
+              opts: [
+                "By checking an environment variable",
+                "By parsing a CLI flag with <code>clap</code>",
+                "By always being case-insensitive",
+                "Through a config file",
+              ],
+              ans: 0,
+              explain:
+                'The chapter uses <code>std::env::var("IGNORE_CASE")</code> to toggle case-insensitive search.',
+            },
+            {
+              q: "Error messages are printed to stderr using which macro?",
+              opts: [
+                "<code>eprintln!</code>",
+                "<code>stderr!</code>",
+                "<code>println!</code>",
+                "<code>error!()</code>",
+              ],
+              ans: 0,
+              explain:
+                "<code>eprintln!</code> prints to standard error, keeping stdout clean for normal program output.",
+            },
+          ],
+        },
+        {
+          chapter: 13,
+          title: "Iterators and Closures",
+          questions: [
+            {
+              q: "What is a closure in Rust?",
+              opts: [
+                "An anonymous function that can capture its environment",
+                "A function that closes a file handle",
+                "A macro that generates code",
+                "A type of smart pointer",
+              ],
+              ans: 0,
+              explain:
+                "Closures are defined with <code>|params| expr</code> syntax and can capture variables from their scope.",
+            },
+            {
+              q: "What trait must an iterator implement?",
+              opts: [
+                "<code>Iterator</code> with a <code>next()</code> method",
+                "<code>Iterable</code> with a <code>has_next()</code> method",
+                "<code>IntoIter</code> with a <code>yield()</code> method",
+                "<code>Sequence</code> with a <code>get()</code> method",
+              ],
+              ans: 0,
+              explain:
+                "The <code>Iterator</code> trait requires implementing <code>fn next(&mut self) -> Option&lt;Self::Item&gt;</code>.",
+            },
+            {
+              q: "What is a consuming adaptor?",
+              opts: [
+                "A method that takes ownership of the iterator (like <code>collect</code> and <code>sum</code>)",
+                "An adaptor that filters out elements",
+                "A method that creates an iterator",
+                "A closure that consumes memory",
+              ],
+              ans: 0,
+              explain:
+                "Consuming adaptors call <code>next()</code> until exhaustion, taking ownership of the iterator.",
+            },
+            {
+              q: "Are iterators in Rust lazy or eager?",
+              opts: [
+                "Lazy — they do nothing until consumed",
+                "Eager — they process immediately on creation",
+                "It depends on the collection type",
+                "Lazy in debug, eager in release",
+              ],
+              ans: 0,
+              explain:
+                "Iterator adaptors like <code>map</code> and <code>filter</code> are lazy; no work happens until a consuming method is called.",
+            },
+            {
+              q: "What does <code>.collect()</code> do?",
+              opts: [
+                "Consumes the iterator and collects results into a collection",
+                "Collects garbage from memory",
+                "Groups elements by key",
+                "Logs all iterator elements",
+              ],
+              ans: 0,
+              explain:
+                "<code>collect()</code> transforms an iterator into a concrete collection like <code>Vec</code>, <code>HashMap</code>, or <code>String</code>.",
+            },
+          ],
+        },
+        {
+          chapter: 14,
+          title: "More About Cargo and Crates.io",
+          questions: [
+            {
+              q: "What are release profiles in Cargo?",
+              opts: [
+                "Predefined configurations for <code>dev</code> and <code>release</code> builds",
+                "Profiles of crate authors on crates.io",
+                "Lists of recently published crates",
+                "Dependency version strategies",
+              ],
+              ans: 0,
+              explain:
+                "Cargo provides <code>[profile.dev]</code> and <code>[profile.release]</code> sections in <code>Cargo.toml</code> for build settings.",
+            },
+            {
+              q: "How do you generate documentation for your crate?",
+              opts: [
+                "<code>cargo doc</code>",
+                "<code>cargo readme</code>",
+                "<code>rustdoc build</code>",
+                "<code>cargo generate-docs</code>",
+              ],
+              ans: 0,
+              explain:
+                "<code>cargo doc</code> runs <code>rustdoc</code> and generates HTML documentation from doc comments (<code>///</code>).",
+            },
+            {
+              q: "What does <code>pub use</code> accomplish for crate API design?",
+              opts: [
+                "Re-exports items to create a convenient public API structure",
+                "Makes private items public",
+                "Imports and immediately uses a crate",
+                "Publishes the crate to crates.io",
+              ],
+              ans: 0,
+              explain:
+                "<code>pub use</code> re-exports items at a different path, letting you present a cleaner API than your internal module structure.",
+            },
+            {
+              q: "What is a Cargo workspace?",
+              opts: [
+                "A set of related packages sharing a <code>Cargo.lock</code> and output directory",
+                "A directory containing only one crate",
+                "A virtual environment for Rust",
+                "An IDE project configuration",
+              ],
+              ans: 0,
+              explain:
+                "Workspaces group multiple packages that share dependencies and a single <code>target/</code> directory.",
+            },
+            {
+              q: "What command publishes a crate to crates.io?",
+              opts: [
+                "<code>cargo publish</code>",
+                "<code>cargo deploy</code>",
+                "<code>cargo release</code>",
+                "<code>cargo upload</code>",
+              ],
+              ans: 0,
+              explain:
+                "<code>cargo publish</code> packages and uploads your crate to crates.io for others to use.",
+            },
+          ],
+        },
+        {
+          chapter: 15,
+          title: "Smart Pointers",
+          questions: [
+            {
+              q: "What does <code>Box&lt;T&gt;</code> provide?",
+              opts: [
+                "Heap allocation with single ownership",
+                "Shared ownership with reference counting",
+                "Interior mutability",
+                "Automatic garbage collection",
+              ],
+              ans: 0,
+              explain:
+                "<code>Box&lt;T&gt;</code> allocates data on the heap while providing a single owner on the stack.",
+            },
+            {
+              q: "What is <code>Rc&lt;T&gt;</code> used for?",
+              opts: [
+                "Shared ownership via reference counting (single-threaded)",
+                "Runtime compilation",
+                "Remote procedure calls",
+                "Recursive closures",
+              ],
+              ans: 0,
+              explain:
+                "<code>Rc&lt;T&gt;</code> enables multiple owners of the same data by tracking reference counts at runtime.",
+            },
+            {
+              q: "What does <code>RefCell&lt;T&gt;</code> enable?",
+              opts: [
+                "Interior mutability — mutable borrows checked at runtime",
+                "Reflection on types",
+                "Reference-free cell storage",
+                "Compile-time borrow checking bypass",
+              ],
+              ans: 0,
+              explain:
+                "<code>RefCell&lt;T&gt;</code> enforces borrowing rules at runtime instead of compile time, allowing mutation through shared references.",
+            },
+            {
+              q: "What trait allows a smart pointer to be used like a reference?",
+              opts: [
+                "<code>Deref</code>",
+                "<code>AsRef</code>",
+                "<code>Pointer</code>",
+                "<code>Ref</code>",
+              ],
+              ans: 0,
+              explain:
+                "Implementing <code>Deref</code> lets you use <code>*</code> to dereference and enables deref coercions.",
+            },
+            {
+              q: "What trait provides custom cleanup logic when a value goes out of scope?",
+              opts: [
+                "<code>Drop</code>",
+                "<code>Cleanup</code>",
+                "<code>Finalize</code>",
+                "<code>Dispose</code>",
+              ],
+              ans: 0,
+              explain:
+                "The <code>Drop</code> trait's <code>drop</code> method is called automatically when an owner goes out of scope.",
+            },
+          ],
+        },
+        {
+          chapter: 16,
+          title: "Fearless Concurrency",
+          questions: [
+            {
+              q: "How do you spawn a new thread in Rust?",
+              opts: [
+                "<code>thread::spawn(|| { ... })</code>",
+                "<code>Thread.new { ... }</code>",
+                "<code>async { ... }</code>",
+                "<code>fork()</code>",
+              ],
+              ans: 0,
+              explain:
+                "<code>std::thread::spawn</code> takes a closure and runs it in a new OS thread.",
+            },
+            {
+              q: "What does the <code>move</code> keyword do with closures for threads?",
+              opts: [
+                "Forces the closure to take ownership of captured variables",
+                "Moves the thread to a different CPU core",
+                "Transfers a thread's handle to another variable",
+                "Enables the closure to be <code>Send</code>",
+              ],
+              ans: 0,
+              explain:
+                "<code>move || { ... }</code> transfers ownership of captured variables into the closure, necessary for thread safety.",
+            },
+            {
+              q: "What is a channel used for in Rust concurrency?",
+              opts: [
+                "Message passing between threads",
+                "Connecting to network sockets",
+                "Buffering file I/O",
+                "Synchronizing CPU caches",
+              ],
+              ans: 0,
+              explain:
+                "Channels (<code>mpsc::channel</code>) allow threads to communicate by sending values through a transmitter/receiver pair.",
+            },
+            {
+              q: "What does <code>Mutex&lt;T&gt;</code> provide?",
+              opts: [
+                "Mutual exclusion — only one thread can access the data at a time",
+                "Multiple access without locking",
+                "Message passing between threads",
+                "Compile-time concurrency checking",
+              ],
+              ans: 0,
+              explain:
+                "A <code>Mutex</code> guards data so only one thread can acquire the lock and access the inner value at a time.",
+            },
+            {
+              q: "What smart pointer is used with <code>Mutex</code> for shared ownership across threads?",
+              opts: [
+                "<code>Arc&lt;T&gt;</code>",
+                "<code>Rc&lt;T&gt;</code>",
+                "<code>Box&lt;T&gt;</code>",
+                "<code>Cell&lt;T&gt;</code>",
+              ],
+              ans: 0,
+              explain:
+                "<code>Arc</code> (Atomic Reference Counting) is the thread-safe version of <code>Rc</code>, required for sharing data across threads.",
+            },
+          ],
+        },
+        {
+          chapter: 17,
+          title: "Async and Await",
+          questions: [
+            {
+              q: "What does the <code>async</code> keyword do to a function?",
+              opts: [
+                "Makes it return a <code>Future</code> that must be awaited",
+                "Runs it in a separate thread",
+                "Makes it non-blocking automatically",
+                "Enables the function to use channels",
+              ],
+              ans: 0,
+              explain:
+                "An <code>async fn</code> returns a <code>Future</code> — work only happens when the future is polled/awaited.",
+            },
+            {
+              q: "What does <code>.await</code> do in Rust?",
+              opts: [
+                "Suspends execution until the <code>Future</code> resolves",
+                "Blocks the thread",
+                "Creates a new async task",
+                "Converts sync code to async",
+              ],
+              ans: 0,
+              explain:
+                "<code>.await</code> yields control so other tasks can run, resuming when the future completes.",
+            },
+            {
+              q: "Which trait do all futures implement?",
+              opts: [
+                "<code>Future</code>",
+                "<code>Async</code>",
+                "<code>Awaitable</code>",
+                "<code>Task</code>",
+              ],
+              ans: 0,
+              explain:
+                "The <code>Future</code> trait has a <code>poll</code> method that drives the async computation forward.",
+            },
+            {
+              q: "Futures in Rust are:",
+              opts: [
+                "Lazy — they do nothing until polled",
+                "Eager — they start executing immediately",
+                "Always run on a thread pool",
+                "Garbage collected",
+              ],
+              ans: 0,
+              explain:
+                "Unlike some other languages, Rust futures do no work until an executor polls them.",
+            },
+            {
+              q: "What is needed to actually run async code in Rust?",
+              opts: [
+                "An async runtime / executor (like tokio)",
+                "Nothing — the standard library handles it",
+                "A special compiler flag",
+                "A separate <code>async main</code> binary",
+              ],
+              ans: 0,
+              explain:
+                "Rust's standard library provides the <code>Future</code> trait but not a runtime; crates like tokio provide executors.",
+            },
+          ],
+        },
+        {
+          chapter: 18,
+          title: "OOP Features of Rust",
+          questions: [
+            {
+              q: "Does Rust have inheritance?",
+              opts: [
+                "No — it uses traits and composition instead",
+                "Yes — structs can inherit from other structs",
+                "Yes — through the <code>extends</code> keyword",
+                "Only for enums",
+              ],
+              ans: 0,
+              explain:
+                "Rust favors composition over inheritance; shared behavior is achieved through traits.",
+            },
+            {
+              q: "What are trait objects used for?",
+              opts: [
+                "Dynamic dispatch — allowing different types behind a common interface at runtime",
+                "Static type checking",
+                "Memory allocation",
+                "Pattern matching",
+              ],
+              ans: 0,
+              explain:
+                "Trait objects like <code>Box&lt;dyn Draw&gt;</code> enable runtime polymorphism via dynamic dispatch.",
+            },
+            {
+              q: "What is the syntax for a trait object?",
+              opts: [
+                "<code>dyn TraitName</code>",
+                "<code>impl TraitName</code>",
+                "<code>trait TraitName</code>",
+                "<code>virtual TraitName</code>",
+              ],
+              ans: 0,
+              explain:
+                "<code>dyn Trait</code> indicates a trait object that uses dynamic dispatch through a vtable.",
+            },
+            {
+              q: "What is encapsulation in Rust achieved through?",
+              opts: [
+                "Using <code>pub</code> selectively on struct fields and methods",
+                "Using private classes",
+                "Through the <code>sealed</code> keyword",
+                "By making everything immutable",
+              ],
+              ans: 0,
+              explain:
+                "Making struct fields private and exposing only chosen methods via <code>pub</code> achieves encapsulation.",
+            },
+            {
+              q: "What is the state pattern as shown in the book?",
+              opts: [
+                "Using trait objects to represent states, with behavior delegated to state structs",
+                "Matching on enum variants",
+                "Using global mutable state",
+                "A Cargo build pattern",
+              ],
+              ans: 0,
+              explain:
+                "The chapter implements the state pattern where each state is a trait object implementing shared behavior differently.",
+            },
+          ],
+        },
+        {
+          chapter: 19,
+          title: "Patterns and Matching",
+          questions: [
+            {
+              q: "Which of these is NOT a place where patterns are used?",
+              opts: [
+                "<code>use</code> statements",
+                "<code>match</code> arms",
+                "<code>if let</code>",
+                "<code>for</code> loops",
+              ],
+              ans: 0,
+              explain:
+                "Patterns appear in <code>match</code>, <code>if let</code>, <code>while let</code>, <code>for</code>, <code>let</code>, and function params — but not <code>use</code>.",
+            },
+            {
+              q: "What is a refutable vs irrefutable pattern?",
+              opts: [
+                "Irrefutable always matches; refutable might fail to match",
+                "Refutable patterns are slower",
+                "Irrefutable means immutable",
+                "There is no such distinction in Rust",
+              ],
+              ans: 0,
+              explain:
+                "<code>let x = 5;</code> is irrefutable (always matches). <code>if let Some(x) = val</code> is refutable (might not match).",
+            },
+            {
+              q: "What does the <code>@</code> binding do in a pattern?",
+              opts: [
+                "Binds a value to a variable while testing it against a pattern",
+                "Creates an email address type",
+                "References a static variable",
+                "Dereferences a pointer",
+              ],
+              ans: 0,
+              explain:
+                "<code>id @ 3..=7</code> tests if the value is in range 3–7 AND binds it to <code>id</code> simultaneously.",
+            },
+            {
+              q: "What does <code>..</code> do in struct patterns?",
+              opts: [
+                "Ignores remaining fields",
+                "Creates a range",
+                "Spreads values into a struct",
+                "Accesses nested fields",
+              ],
+              ans: 0,
+              explain:
+                "<code>Point { x, .. }</code> destructures only <code>x</code> and ignores all other fields.",
+            },
+            {
+              q: "What is a match guard?",
+              opts: [
+                "An extra <code>if</code> condition on a match arm",
+                "A mutex on a match block",
+                "A default arm",
+                "A compile-time check",
+              ],
+              ans: 0,
+              explain:
+                "Match guards add an <code>if</code> after the pattern: <code>Some(x) if x > 5 => ...</code> for additional filtering.",
+            },
+          ],
+        },
+        {
+          chapter: 20,
+          title: "Advanced Features",
+          questions: [
+            {
+              q: "What is an <code>unsafe</code> block used for?",
+              opts: [
+                "Opting into operations the compiler can't verify as safe",
+                "Disabling all borrow checking",
+                "Writing C code inline",
+                "Enabling garbage collection",
+              ],
+              ans: 0,
+              explain:
+                "<code>unsafe</code> lets you dereference raw pointers, call unsafe functions, and access mutable statics — with you guaranteeing safety.",
+            },
+            {
+              q: "What are associated types in traits?",
+              opts: [
+                "Placeholder types specified by the implementor",
+                "Generic type parameters",
+                "Global type aliases",
+                "Types associated with modules",
+              ],
+              ans: 0,
+              explain:
+                "Associated types like <code>type Item;</code> in the <code>Iterator</code> trait let each implementation choose the concrete type.",
+            },
+            {
+              q: "What is the newtype pattern?",
+              opts: [
+                "Wrapping a type in a single-field tuple struct for type safety",
+                "Creating types at runtime",
+                "Using <code>type</code> for aliases",
+                "Defining types in a <code>new</code> module",
+              ],
+              ans: 0,
+              explain:
+                "The newtype pattern (<code>struct Meters(f64);</code>) gives a distinct type to prevent mixing up semantically different values.",
+            },
+            {
+              q: "What are function pointers in Rust?",
+              opts: [
+                "The <code>fn</code> type that points to a function (not a closure)",
+                "Pointers to <code>main()</code>",
+                "Raw pointers to code memory",
+                "Closures stored in boxes",
+              ],
+              ans: 0,
+              explain:
+                "The <code>fn</code> type (lowercase) is a function pointer type. Unlike closures, it doesn't capture environment.",
+            },
+            {
+              q: "What does the <code>!</code> (never type) represent?",
+              opts: [
+                "A type for expressions that never return",
+                "A logical NOT operation",
+                "An error type",
+                "A negation of a trait bound",
+              ],
+              ans: 0,
+              explain:
+                "The never type <code>!</code> indicates a function never returns (e.g., <code>loop {}</code> or <code>panic!()</code>).",
+            },
+          ],
+        },
+      ];
+
+      // ─── SHUFFLE UTILITY ───
+      function shuffleOptions(questions) {
+        return questions.map((q) => {
+          const correctOpt = q.opts[q.ans];
+          // Create index array and shuffle it (Fisher-Yates)
+          const indices = q.opts.map((_, i) => i);
+          for (let i = indices.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [indices[i], indices[j]] = [indices[j], indices[i]];
+          }
+          const newOpts = indices.map((i) => q.opts[i]);
+          const newAns = newOpts.indexOf(correctOpt);
+          return { ...q, opts: newOpts, ans: newAns };
+        });
+      }
+
+      // ─── GAME STATE ───
+      let state = {
+        currentLevel: 0,
+        currentQuestion: 0,
+        score: 0,
+        answered: false,
+        levelScores: new Array(levels.length).fill(-1), // -1 = not attempted
+        totalScore: 0,
+        totalStars: 0,
+        shuffledQuestions: [], // holds shuffled version for current level
+      };
+
+      // ─── INIT ───
+      function init() {
+        renderLevels();
+        updateStats();
+      }
+
+      function showScreen(id) {
+        document
+          .querySelectorAll(".screen")
+          .forEach((s) => s.classList.remove("active"));
+        document.getElementById(id).classList.add("active");
+      }
+
+      // ─── LEVEL SELECT ───
+      function renderLevels() {
+        const grid = document.getElementById("levelsGrid");
+        grid.innerHTML = "";
+        levels.forEach((lvl, i) => {
+          const unlocked = i === 0 || state.levelScores[i - 1] >= 0;
+          const completed = state.levelScores[i] >= 0;
+          const stars = completed
+            ? getStars(state.levelScores[i], lvl.questions.length)
+            : 0;
+          const card = document.createElement("div");
+          card.className = `level-card${unlocked ? "" : " locked"}${completed ? " completed" : ""}`;
+          card.innerHTML = `
+      <div class="level-num">Chapter ${lvl.chapter}</div>
+      <div class="level-title">${lvl.title}</div>
+      <div class="level-badge">${completed ? "★".repeat(stars) + "☆".repeat(3 - stars) : unlocked ? "5 Q" : "🔒"}</div>
+    `;
+          if (unlocked) card.onclick = () => startLevel(i);
+          grid.appendChild(card);
+        });
+      }
+
+      function getStars(correct, total) {
+        const pct = correct / total;
+        if (pct >= 0.9) return 3;
+        if (pct >= 0.6) return 2;
+        if (pct > 0) return 1;
+        return 0;
+      }
+
+      // ─── START LEVEL ───
+      function startLevel(idx) {
+        state.currentLevel = idx;
+        state.currentQuestion = 0;
+        state.score = 0;
+        state.answered = false;
+        state.shuffledQuestions = shuffleOptions(levels[idx].questions);
+        showScreen("quizScreen");
+        renderQuestion();
+      }
+
+      function retryLevel() {
+        startLevel(state.currentLevel);
+      }
+
+      // ─── RENDER QUESTION ───
+      function renderQuestion() {
+        const lvl = levels[state.currentLevel];
+        const q = state.shuffledQuestions[state.currentQuestion];
+        const total = lvl.questions.length;
+        const num = state.currentQuestion + 1;
+
+        document.getElementById("quizChapter").textContent =
+          `Ch.${lvl.chapter} — ${lvl.title}`;
+        document.getElementById("quizProgressText").textContent =
+          `${num} / ${total}`;
+        document.getElementById("progressBar").style.width =
+          `${(num / total) * 100}%`;
+        document.getElementById("nextBtn").style.display = "none";
+        state.answered = false;
+
+        const keys = ["A", "B", "C", "D"];
+        document.getElementById("questionArea").innerHTML = `
+    <div class="question-card">
+      <div class="question-number">Question ${num} of ${total}</div>
+      <div class="question-text">${q.q}</div>
+      <div class="options">
+        ${q.opts
+          .map(
+            (opt, i) => `
+          <button class="option-btn" onclick="selectAnswer(${i})" data-idx="${i}">
+            <span class="opt-key">${keys[i]}</span>
+            <span>${opt}</span>
+          </button>
+        `,
+          )
+          .join("")}
+      </div>
+      <div id="explanationSlot"></div>
+    </div>
+  `;
+      }
+
+      // ─── SELECT ANSWER ───
+      function selectAnswer(idx) {
+        if (state.answered) return;
+        state.answered = true;
+
+        const lvl = levels[state.currentLevel];
+        const q = state.shuffledQuestions[state.currentQuestion];
+        const btns = document.querySelectorAll(".option-btn");
+
+        btns.forEach((btn, i) => {
+          btn.classList.add("disabled");
+          if (i === q.ans) btn.classList.add("correct");
+          if (i === idx && idx !== q.ans) btn.classList.add("wrong");
+        });
+
+        if (idx === q.ans) state.score++;
+
+        document.getElementById("explanationSlot").innerHTML = `
+    <div class="explanation-box">
+      ${idx === q.ans ? "✅" : "❌"} ${q.explain}
+    </div>
+  `;
+
+        const isLast = state.currentQuestion >= lvl.questions.length - 1;
+        const nextBtn = document.getElementById("nextBtn");
+        nextBtn.textContent = isLast ? "See Results →" : "Next →";
+        nextBtn.style.display = "inline-block";
+      }
+
+      // ─── NEXT QUESTION ───
+      function nextQuestion() {
+        const lvl = levels[state.currentLevel];
+        if (state.currentQuestion < lvl.questions.length - 1) {
+          state.currentQuestion++;
+          renderQuestion();
+        } else {
+          finishLevel();
+        }
+      }
+
+      // ─── FINISH LEVEL ───
+      function finishLevel() {
+        const lvl = levels[state.currentLevel];
+        const total = lvl.questions.length;
+        const prev = state.levelScores[state.currentLevel];
+        if (state.score > prev) {
+          state.levelScores[state.currentLevel] = state.score;
+        }
+
+        // Recalculate totals
+        state.totalScore = state.levelScores.reduce(
+          (s, v) => s + (v > 0 ? v : 0),
+          0,
+        );
+        state.totalStars = state.levelScores.reduce(
+          (s, v, i) =>
+            s + (v >= 0 ? getStars(v, levels[i].questions.length) : 0),
+          0,
+        );
+
+        const stars = getStars(state.score, total);
+        const messages = [
+          "Keep studying! Re-read the chapter and try again. 🦀",
+          "Good start! You're getting the fundamentals down.",
+          "Solid knowledge! A few more details to master.",
+          "Outstanding! You truly own this chapter! 🏆",
+        ];
+
+        document.getElementById("resultsStars").innerHTML = [1, 2, 3]
+          .map(
+            (i) =>
+              `<span class="star ${i <= stars ? "filled" : ""}">${i <= stars ? "★" : "☆"}</span>`,
+          )
+          .join("");
+        document.getElementById("resultsScore").textContent =
+          `${state.score}/${total}`;
+        document.getElementById("resultsMsg").textContent = messages[stars];
+
+        updateStats();
+        renderLevels();
+        showScreen("resultsScreen");
+      }
+
+      function updateStats() {
+        document.getElementById("totalScore").textContent = state.totalScore;
+        document.getElementById("totalCompleted").textContent =
+          state.levelScores.filter((v) => v >= 0).length + "/" + levels.length;
+        document.getElementById("totalStars").textContent = state.totalStars;
+      }
+
+      // ── Keyboard support ──
+      document.addEventListener("keydown", (e) => {
+        const quizActive = document
+          .getElementById("quizScreen")
+          .classList.contains("active");
+        if (!quizActive) return;
+        const keyMap = { a: 0, b: 1, c: 2, d: 3, 1: 0, 2: 1, 3: 2, 4: 3 };
+        if (e.key.toLowerCase() in keyMap && !state.answered) {
+          selectAnswer(keyMap[e.key.toLowerCase()]);
+        }
+        if ((e.key === "Enter" || e.key === " ") && state.answered) {
+          e.preventDefault();
+          nextQuestion();
+        }
+      });
+
+      init();
+    </script>
+  </body>
+</html>
