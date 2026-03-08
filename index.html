@@ -839,6 +839,66 @@
               explain:
                 "<code>cargo run</code> compiles the project (if needed) and then executes the resulting binary.",
             },
+            {
+              q: "Where does Cargo place the compiled binary by default?",
+              opts: [
+                "<code>target/debug/</code>",
+                "<code>bin/</code>",
+                "<code>build/</code>",
+                "<code>out/</code>",
+              ],
+              ans: 0,
+              explain:
+                "Debug builds go into <code>target/debug/</code>. Release builds (<code>--release</code>) go into <code>target/release/</code>.",
+            },
+            {
+              q: "What does <code>cargo build --release</code> do differently from <code>cargo build</code>?",
+              opts: [
+                "Compiles with optimizations enabled",
+                "Publishes the crate to crates.io",
+                "Builds only the tests",
+                "Removes debug symbols and panics",
+              ],
+              ans: 0,
+              explain:
+                "The <code>--release</code> flag enables optimization profiles, producing slower compiles but faster executables.",
+            },
+            {
+              q: "What file does Cargo generate to lock dependency versions?",
+              opts: [
+                "<code>Cargo.lock</code>",
+                "<code>Cargo.toml</code>",
+                "<code>rust-lock.json</code>",
+                "<code>.cargo/lock</code>",
+              ],
+              ans: 0,
+              explain:
+                "<code>Cargo.lock</code> records exact dependency versions for reproducible builds.",
+            },
+            {
+              q: "Which command checks your code for errors without producing a binary?",
+              opts: [
+                "<code>cargo check</code>",
+                "<code>cargo verify</code>",
+                "<code>cargo lint</code>",
+                "<code>rustc --check</code>",
+              ],
+              ans: 0,
+              explain:
+                "<code>cargo check</code> runs the compiler without code generation, making it faster than <code>cargo build</code> for quick error checking.",
+            },
+            {
+              q: "What edition of Rust is specified in <code>Cargo.toml</code>?",
+              opts: [
+                "The Rust edition year (e.g., <code>edition = \"2021\"</code>)",
+                "The compiler version number",
+                "The crate's semantic version",
+                "The minimum supported OS version",
+              ],
+              ans: 0,
+              explain:
+                "The <code>edition</code> key in <code>Cargo.toml</code> specifies which Rust edition (2015, 2018, 2021, 2024) the code uses.",
+            },
           ],
         },
         {
@@ -904,6 +964,66 @@
               ans: 0,
               explain:
                 "Calling <code>.trim().parse()</code> on a <code>String</code> removes whitespace and parses it into the inferred numeric type.",
+            },
+            {
+              q: "What does <code>String::new()</code> return?",
+              opts: [
+                "An empty, growable <code>String</code>",
+                "A null pointer",
+                "A string containing <code>\"new\"</code>",
+                "A <code>&str</code> slice",
+              ],
+              ans: 0,
+              explain:
+                "<code>String::new()</code> creates a new, empty <code>String</code> that can be grown with methods like <code>push_str</code>.",
+            },
+            {
+              q: "What does <code>read_line</code> return?",
+              opts: [
+                "A <code>Result&lt;usize, io::Error&gt;</code>",
+                "A <code>String</code>",
+                "A <code>bool</code>",
+                "An <code>Option&lt;String&gt;</code>",
+              ],
+              ans: 0,
+              explain:
+                "<code>read_line</code> returns a <code>Result</code> indicating success (with bytes read) or an I/O error.",
+            },
+            {
+              q: "In the guessing game, what does <code>Ordering::Equal</code> represent?",
+              opts: [
+                "The guess matches the secret number exactly",
+                "The guess is less than the secret",
+                "The comparison failed",
+                "The input was invalid",
+              ],
+              ans: 0,
+              explain:
+                "<code>cmp</code> returns <code>Ordering::Equal</code> when both values are the same, triggering the win condition in the game.",
+            },
+            {
+              q: "Why is <code>&mut guess</code> passed to <code>read_line</code> instead of <code>guess</code>?",
+              opts: [
+                "Because <code>read_line</code> needs a mutable reference to append input to the string",
+                "Because Rust requires all function arguments to be references",
+                "Because it copies the string more efficiently",
+                "Because <code>guess</code> is an integer",
+              ],
+              ans: 0,
+              explain:
+                "<code>read_line</code> appends user input into the provided <code>String</code>, so it needs a mutable reference (<code>&mut</code>) to modify it.",
+            },
+            {
+              q: "What does <code>use std::cmp::Ordering;</code> do in the guessing game?",
+              opts: [
+                "Brings the <code>Ordering</code> enum into scope so its variants can be used in <code>match</code>",
+                "Imports the comparison operators",
+                "Enables sorting on all types",
+                "Creates a new ordering type",
+              ],
+              ans: 0,
+              explain:
+                "The <code>use</code> statement brings <code>Ordering</code> (with its <code>Less</code>, <code>Greater</code>, <code>Equal</code> variants) into scope for pattern matching.",
             },
           ],
         },
@@ -971,6 +1091,66 @@
               explain:
                 "Rust's <code>if</code> does not require parentheses around the condition, unlike C or Java.",
             },
+            {
+              q: "What happens if you add a semicolon to the last expression in a function body?",
+              opts: [
+                "It becomes a statement and the function returns <code>()</code> instead",
+                "It causes a syntax error",
+                "Nothing changes — semicolons are optional",
+                "It makes the return value mutable",
+              ],
+              ans: 0,
+              explain:
+                "Adding a semicolon turns an expression into a statement, which returns the unit type <code>()</code> rather than the expression's value.",
+            },
+            {
+              q: "What is the difference between shadowing and using <code>mut</code>?",
+              opts: [
+                "Shadowing creates a new variable and can change the type; <code>mut</code> only allows changing the value",
+                "They are the same thing",
+                "<code>mut</code> can change types too",
+                "Shadowing is only allowed in loops",
+              ],
+              ans: 0,
+              explain:
+                "Shadowing with <code>let</code> creates a brand new binding (even a different type), while <code>mut</code> only allows mutating the same binding.",
+            },
+            {
+              q: "What is a <code>const</code> in Rust and how does it differ from <code>let</code>?",
+              opts: [
+                "<code>const</code> must have a type annotation and is evaluated at compile time; <code>let</code> is runtime",
+                "<code>const</code> and <code>let</code> are identical",
+                "<code>const</code> allows mutation; <code>let</code> does not",
+                "<code>const</code> can only store integers",
+              ],
+              ans: 0,
+              explain:
+                "Constants require a type annotation, must be set to a constant expression, and are inlined at compile time. They cannot be shadowed.",
+            },
+            {
+              q: "Which of these is a compound type in Rust?",
+              opts: [
+                "Tuple",
+                "<code>i64</code>",
+                "<code>bool</code>",
+                "<code>f32</code>",
+              ],
+              ans: 0,
+              explain:
+                "Tuples and arrays are compound types that group multiple values. Integers, floats, bools, and chars are scalar types.",
+            },
+            {
+              q: "What does the <code>loop</code> expression return when you use <code>break value;</code>?",
+              opts: [
+                "The value passed to <code>break</code>",
+                "Always <code>()</code>",
+                "A <code>Result</code> type",
+                "It cannot return a value",
+              ],
+              ans: 0,
+              explain:
+                "In Rust, <code>loop</code> is an expression: <code>let x = loop { break 42; };</code> assigns <code>42</code> to <code>x</code>.",
+            },
           ],
         },
         {
@@ -1036,6 +1216,66 @@
               ans: 0,
               explain:
                 "Slices like <code>&s[0..5]</code> or <code>&arr[1..3]</code> are references to portions of data without taking ownership.",
+            },
+            {
+              q: "Can you have an immutable reference and a mutable reference to the same data at the same time?",
+              opts: [
+                "No — Rust prevents this to avoid data races",
+                "Yes — as long as you don't write through the mutable reference",
+                "Yes — the compiler allows it in single-threaded code",
+                "Only inside an <code>unsafe</code> block",
+              ],
+              ans: 0,
+              explain:
+                "Rust's borrowing rules forbid mixing mutable and immutable references to the same data in overlapping scopes.",
+            },
+            {
+              q: "What happens when a <code>String</code> goes out of scope?",
+              opts: [
+                "Rust automatically calls <code>drop</code> and frees the memory",
+                "The garbage collector eventually frees it",
+                "It leaks memory",
+                "You must manually call <code>free()</code>",
+              ],
+              ans: 0,
+              explain:
+                "Rust calls <code>drop</code> automatically when the owner goes out of scope, deallocating heap memory without a GC.",
+            },
+            {
+              q: "Which types implement the <code>Copy</code> trait by default?",
+              opts: [
+                "Simple scalar types like <code>i32</code>, <code>bool</code>, <code>f64</code>, and <code>char</code>",
+                "All types in Rust",
+                "Only <code>String</code> and <code>Vec</code>",
+                "Types that allocate heap memory",
+              ],
+              ans: 0,
+              explain:
+                "Types with a known size stored entirely on the stack (integers, floats, bools, chars, and tuples of <code>Copy</code> types) implement <code>Copy</code>.",
+            },
+            {
+              q: "What is a dangling reference, and does Rust allow them?",
+              opts: [
+                "A reference to freed memory — Rust prevents them at compile time",
+                "A reference to a global variable — Rust allows them",
+                "A reference to a null pointer — Rust uses <code>Option</code> instead",
+                "A mutable reference inside a loop — Rust prevents them at runtime",
+              ],
+              ans: 0,
+              explain:
+                "The compiler ensures references never outlive the data they point to, eliminating dangling references at compile time.",
+            },
+            {
+              q: "What does <code>&s[..]</code> produce when <code>s</code> is a <code>String</code>?",
+              opts: [
+                "A string slice (<code>&str</code>) of the entire string",
+                "A clone of the string",
+                "A mutable reference to the string",
+                "A compile error",
+              ],
+              ans: 0,
+              explain:
+                "<code>&s[..]</code> is equivalent to <code>&s[0..s.len()]</code>, producing a <code>&str</code> slice covering the whole string.",
             },
           ],
         },
@@ -1103,6 +1343,66 @@
               explain:
                 "<code>&self</code> is shorthand for <code>self: &Self</code>, borrowing the instance immutably.",
             },
+            {
+              q: "What is the struct update syntax in Rust?",
+              opts: [
+                "Using <code>..other_struct</code> to fill remaining fields from another instance",
+                "Using <code>update()</code> method on a struct",
+                "Reassigning individual fields with <code>=</code>",
+                "Using <code>struct.merge()</code>",
+              ],
+              ans: 0,
+              explain:
+                "<code>let user2 = User { email: new_email, ..user1 };</code> creates a new struct using remaining fields from <code>user1</code>.",
+            },
+            {
+              q: "What is an associated function (not a method) in an <code>impl</code> block?",
+              opts: [
+                "A function without <code>self</code> as a parameter, called with <code>::</code>",
+                "Any function inside <code>impl</code>",
+                "A function that returns <code>Self</code>",
+                "A static method inherited from a trait",
+              ],
+              ans: 0,
+              explain:
+                "Associated functions like <code>String::new()</code> don't take <code>self</code> and are called on the type with <code>::</code>, not on an instance.",
+            },
+            {
+              q: "Can a struct have multiple <code>impl</code> blocks?",
+              opts: [
+                "Yes — multiple <code>impl</code> blocks for the same struct are allowed",
+                "No — only one <code>impl</code> block per struct",
+                "Only if they implement different traits",
+                "Only in different files",
+              ],
+              ans: 0,
+              explain:
+                "Rust allows splitting methods across multiple <code>impl</code> blocks for the same type, which is useful for organization.",
+            },
+            {
+              q: "What is a unit-like struct?",
+              opts: [
+                "A struct with no fields, like <code>struct AlwaysEqual;</code>",
+                "A struct that measures physical units",
+                "A struct with exactly one field",
+                "A struct that implements <code>Unit</code> trait",
+              ],
+              ans: 0,
+              explain:
+                "Unit-like structs have no fields and are useful for implementing traits on a type without storing data.",
+            },
+            {
+              q: "What does <code>#[derive(Debug)]</code> require from all fields of a struct?",
+              opts: [
+                "All fields must also implement <code>Debug</code>",
+                "All fields must be public",
+                "All fields must be <code>Copy</code>",
+                "Nothing — it works on any struct",
+              ],
+              ans: 0,
+              explain:
+                "Derived traits require all fields to implement the same trait. If a field doesn't implement <code>Debug</code>, the derive will fail to compile.",
+            },
           ],
         },
         {
@@ -1168,6 +1468,66 @@
               ans: 0,
               explain:
                 "<code>if let Some(val) = expr { }</code> is syntactic sugar for a <code>match</code> that only handles one case.",
+            },
+            {
+              q: "Can an enum variant hold a struct with named fields?",
+              opts: [
+                "Yes — variants can hold named fields like <code>Move { x: i32, y: i32 }</code>",
+                "No — variants can only hold tuples",
+                "Only if the enum derives <code>Struct</code>",
+                "Only with unnamed fields",
+              ],
+              ans: 0,
+              explain:
+                "Enum variants can hold no data, tuple data, or struct-like named fields, making them very flexible.",
+            },
+            {
+              q: "What does <code>Option::unwrap()</code> do?",
+              opts: [
+                "Returns the inner value if <code>Some</code>, panics if <code>None</code>",
+                "Returns <code>None</code> if <code>Some</code>",
+                "Converts <code>Option</code> to <code>Result</code>",
+                "Always returns a default value",
+              ],
+              ans: 0,
+              explain:
+                "<code>unwrap()</code> extracts the value from <code>Some(v)</code> but calls <code>panic!</code> if the <code>Option</code> is <code>None</code>.",
+            },
+            {
+              q: "What is the <code>None</code> variant of <code>Option&lt;T&gt;</code> analogous to?",
+              opts: [
+                "Null or nil in other languages, but type-safe",
+                "An empty string",
+                "Zero",
+                "An exception",
+              ],
+              ans: 0,
+              explain:
+                "<code>None</code> represents the absence of a value, but unlike null pointers, the compiler forces you to handle it explicitly.",
+            },
+            {
+              q: "Can you use <code>match</code> to destructure enum variants with data?",
+              opts: [
+                "Yes — <code>match msg { Message::Move { x, y } =&gt; ... }</code>",
+                "No — you must use <code>if let</code>",
+                "Only with tuple variants",
+                "Only if the enum derives <code>PartialEq</code>",
+              ],
+              ans: 0,
+              explain:
+                "<code>match</code> can destructure any enum variant, binding inner data to variables in each arm.",
+            },
+            {
+              q: "What does <code>while let</code> do?",
+              opts: [
+                "Loops as long as a pattern continues to match",
+                "Declares a variable inside a while loop",
+                "Creates an infinite loop",
+                "Matches exactly once",
+              ],
+              ans: 0,
+              explain:
+                "<code>while let Some(val) = stack.pop() { ... }</code> keeps looping as long as the pattern matches.",
             },
           ],
         },
@@ -1235,6 +1595,66 @@
               explain:
                 "<code>super</code> navigates to the parent module, similar to <code>..</code> in file paths.",
             },
+            {
+              q: "What is the crate root file for a binary crate?",
+              opts: [
+                "<code>src/main.rs</code>",
+                "<code>src/lib.rs</code>",
+                "<code>Cargo.toml</code>",
+                "<code>src/root.rs</code>",
+              ],
+              ans: 0,
+              explain:
+                "For binary crates, <code>src/main.rs</code> is the crate root. For library crates, it's <code>src/lib.rs</code>.",
+            },
+            {
+              q: "What does <code>use crate::module::function;</code> do?",
+              opts: [
+                "Brings <code>function</code> into scope using an absolute path from the crate root",
+                "Imports an external crate",
+                "Creates a new module",
+                "Declares a function pointer",
+              ],
+              ans: 0,
+              explain:
+                "The <code>crate</code> keyword refers to the root of the current crate, forming an absolute path for <code>use</code> statements.",
+            },
+            {
+              q: "How do you re-export an item so users of your crate can access it directly?",
+              opts: [
+                "<code>pub use</code>",
+                "<code>export</code>",
+                "<code>pub mod</code>",
+                "<code>pub extern</code>",
+              ],
+              ans: 0,
+              explain:
+                "<code>pub use</code> re-exports an item, making it available as if it were defined at the re-export location.",
+            },
+            {
+              q: "What does <code>use std::io::{self, Write};</code> do?",
+              opts: [
+                "Brings both <code>std::io</code> and <code>std::io::Write</code> into scope",
+                "Creates an alias for <code>io</code>",
+                "Imports all items from <code>std::io</code>",
+                "Defines a new module called <code>io</code>",
+              ],
+              ans: 0,
+              explain:
+                "Nested paths with <code>self</code> let you import a module and specific items from it in one <code>use</code> statement.",
+            },
+            {
+              q: "Can a child module access private items in its parent module?",
+              opts: [
+                "Yes — child modules can see private items of their ancestors",
+                "No — only <code>pub</code> items are visible to children",
+                "Only with the <code>friend</code> keyword",
+                "Only if the child is in the same file",
+              ],
+              ans: 0,
+              explain:
+                "In Rust, child modules can access private items of their parent modules, but parents cannot see private items of children.",
+            },
           ],
         },
         {
@@ -1300,6 +1720,66 @@
               ans: 0,
               explain:
                 "UTF-8 encoding means a character might span 1–4 bytes, so indexing by byte position could split a character.",
+            },
+            {
+              q: "What does <code>vec.get(index)</code> return?",
+              opts: [
+                "<code>Option&lt;&T&gt;</code> — <code>Some</code> if in bounds, <code>None</code> otherwise",
+                "The element directly, or panics",
+                "A <code>Result</code> type",
+                "A default value if out of bounds",
+              ],
+              ans: 0,
+              explain:
+                "Unlike <code>vec[index]</code> which panics on out-of-bounds, <code>.get()</code> returns an <code>Option</code> for safe access.",
+            },
+            {
+              q: "What happens if you hold a reference to a <code>Vec</code> element and then push to the <code>Vec</code>?",
+              opts: [
+                "Compile error — pushing may reallocate, invalidating the reference",
+                "The reference is automatically updated",
+                "It works fine in all cases",
+                "Runtime panic",
+              ],
+              ans: 0,
+              explain:
+                "The borrow checker prevents this because <code>push</code> needs <code>&mut self</code> while an element reference holds <code>&self</code>, and reallocation could invalidate the reference.",
+            },
+            {
+              q: "How do you iterate over key-value pairs in a <code>HashMap</code>?",
+              opts: [
+                "<code>for (key, value) in &map { }</code>",
+                "<code>for key in map.keys() { map[key] }</code>",
+                "<code>map.each(|k, v| { })</code>",
+                "<code>while let (k, v) = map.next() { }</code>",
+              ],
+              ans: 0,
+              explain:
+                "Iterating over <code>&HashMap</code> yields <code>(&K, &V)</code> tuples that can be destructured in the <code>for</code> loop.",
+            },
+            {
+              q: "What does <code>String::from(\"hello\")</code> do?",
+              opts: [
+                "Creates an owned <code>String</code> from a string literal",
+                "Creates a <code>&str</code> reference",
+                "Copies the literal to the stack",
+                "Returns a byte array",
+              ],
+              ans: 0,
+              explain:
+                "<code>String::from</code> allocates a heap <code>String</code> from the given <code>&str</code> literal.",
+            },
+            {
+              q: "Which method concatenates a <code>&str</code> onto a <code>String</code>?",
+              opts: [
+                "<code>push_str()</code>",
+                "<code>append()</code>",
+                "<code>concat()</code>",
+                "<code>add_str()</code>",
+              ],
+              ans: 0,
+              explain:
+                "<code>my_string.push_str(\"more\")</code> appends a string slice to the <code>String</code> without taking ownership of the argument.",
             },
           ],
         },
@@ -1367,6 +1847,66 @@
               explain:
                 "<code>expect()</code> is like <code>unwrap()</code> but lets you provide context in the panic message for easier debugging.",
             },
+            {
+              q: "Can the <code>?</code> operator be used in <code>main()</code>?",
+              opts: [
+                "Yes — if <code>main</code> returns <code>Result&lt;(), Box&lt;dyn Error&gt;&gt;</code>",
+                "No — <code>main</code> must always return <code>()</code>",
+                "Only in nightly Rust",
+                "Only with the <code>try!</code> macro instead",
+              ],
+              ans: 0,
+              explain:
+                "Since Rust 2018, <code>main</code> can return <code>Result</code>, allowing <code>?</code> for convenient error propagation.",
+            },
+            {
+              q: "What does <code>unwrap_or_else(|| default_fn())</code> do?",
+              opts: [
+                "Returns the <code>Ok</code> value, or calls the closure to produce a fallback on <code>Err</code>",
+                "Always calls the closure",
+                "Panics if the closure returns an error",
+                "Converts the error to a string",
+              ],
+              ans: 0,
+              explain:
+                "<code>unwrap_or_else</code> provides a lazy fallback: the closure only runs when the <code>Result</code> is <code>Err</code> (or <code>Option</code> is <code>None</code>).",
+            },
+            {
+              q: "What does <code>Result::map()</code> do?",
+              opts: [
+                "Transforms the <code>Ok</code> value with a function, leaving <code>Err</code> unchanged",
+                "Iterates over all results",
+                "Maps errors to a different type",
+                "Creates a <code>HashMap</code> from the result",
+              ],
+              ans: 0,
+              explain:
+                "<code>map</code> applies a function to the <code>Ok</code> variant: <code>Ok(v).map(f)</code> becomes <code>Ok(f(v))</code>, while <code>Err</code> passes through.",
+            },
+            {
+              q: "What is the difference between <code>panic!</code> and <code>std::process::exit()</code>?",
+              opts: [
+                "<code>panic!</code> unwinds the stack and runs destructors; <code>exit()</code> terminates immediately",
+                "They are identical",
+                "<code>exit()</code> is for tests only",
+                "<code>panic!</code> is caught by the runtime automatically",
+              ],
+              ans: 0,
+              explain:
+                "<code>panic!</code> triggers stack unwinding (by default) and runs <code>Drop</code> implementations, while <code>process::exit</code> terminates without cleanup.",
+            },
+            {
+              q: "What does <code>Result::and_then()</code> do?",
+              opts: [
+                "Chains operations that return <code>Result</code>, short-circuiting on <code>Err</code>",
+                "Combines two <code>Result</code> values into a tuple",
+                "Converts <code>Result</code> to <code>Option</code>",
+                "Runs the closure regardless of the variant",
+              ],
+              ans: 0,
+              explain:
+                "<code>and_then</code> (also called <code>flat_map</code> in other languages) chains <code>Result</code>-returning operations, propagating the first <code>Err</code>.",
+            },
           ],
         },
         {
@@ -1432,6 +1972,66 @@
               ans: 0,
               explain:
                 "Trait bounds like <code>T: Display + Clone</code> constrain generics to types with the required behavior.",
+            },
+            {
+              q: "What is the <code>where</code> clause used for in generic functions?",
+              opts: [
+                "A cleaner syntax for specifying trait bounds after the function signature",
+                "Filtering items in a collection",
+                "Conditional compilation",
+                "SQL-like queries on data",
+              ],
+              ans: 0,
+              explain:
+                "<code>fn foo&lt;T&gt;(x: T) where T: Display + Clone { }</code> is equivalent to putting bounds inline but more readable for complex signatures.",
+            },
+            {
+              q: "Do generics in Rust have a runtime cost?",
+              opts: [
+                "No — the compiler monomorphizes generics, generating specialized code for each concrete type",
+                "Yes — generics use dynamic dispatch",
+                "Only in debug builds",
+                "Yes — they add boxing overhead",
+              ],
+              ans: 0,
+              explain:
+                "Monomorphization creates separate compiled versions for each type used, achieving zero-cost abstraction.",
+            },
+            {
+              q: "What does <code>impl Trait</code> in a function return position mean?",
+              opts: [
+                "The function returns some type that implements the trait, but the caller doesn't know the concrete type",
+                "The function returns a trait object",
+                "The function returns a reference",
+                "The function can return different types on different code paths",
+              ],
+              ans: 0,
+              explain:
+                "<code>fn make() -&gt; impl Display</code> returns an opaque type. The compiler knows the concrete type, but the caller only sees the trait.",
+            },
+            {
+              q: "What are the three lifetime elision rules the compiler applies?",
+              opts: [
+                "Each reference param gets its own lifetime; if one input lifetime, it's assigned to all outputs; if <code>&self</code>, its lifetime is assigned to outputs",
+                "All references share the same lifetime",
+                "Output lifetimes are always <code>'static</code>",
+                "There are no elision rules — lifetimes are always explicit",
+              ],
+              ans: 0,
+              explain:
+                "These three rules let the compiler infer lifetimes in many common cases, reducing annotation noise.",
+            },
+            {
+              q: "Can you define a trait with a default method implementation?",
+              opts: [
+                "Yes — traits can provide default method bodies that implementors can override",
+                "No — all trait methods must be implemented",
+                "Only for the first method in the trait",
+                "Only with the <code>default</code> keyword",
+              ],
+              ans: 0,
+              explain:
+                "Trait methods with bodies serve as defaults: <code>trait Summary { fn summarize(&self) -&gt; String { String::from(\"...\") } }</code>.",
             },
           ],
         },
@@ -1499,6 +2099,66 @@
               explain:
                 "Passing a string to <code>cargo test</code> filters test names containing that string.",
             },
+            {
+              q: "What does <code>assert_ne!</code> do in a test?",
+              opts: [
+                "Panics if the two values are equal",
+                "Panics if the two values are not equal",
+                "Returns <code>false</code> if values are equal",
+                "Skips the test if values differ",
+              ],
+              ans: 0,
+              explain:
+                "<code>assert_ne!(a, b)</code> asserts that <code>a</code> and <code>b</code> are NOT equal, panicking with a diff message if they are.",
+            },
+            {
+              q: "How do you add a custom failure message to <code>assert!</code>?",
+              opts: [
+                "Pass additional format arguments: <code>assert!(result, \"failed with {}\"  , val)</code>",
+                "Use <code>assert_msg!</code>",
+                "Call <code>.message()</code> on the result",
+                "You cannot customize the message",
+              ],
+              ans: 0,
+              explain:
+                "<code>assert!</code>, <code>assert_eq!</code>, and <code>assert_ne!</code> accept extra arguments formatted like <code>format!</code> for custom messages.",
+            },
+            {
+              q: "What does <code>#[ignore]</code> attribute do on a test?",
+              opts: [
+                "Skips the test unless explicitly requested with <code>cargo test -- --ignored</code>",
+                "Deletes the test function",
+                "Makes the test always pass",
+                "Runs the test in a separate thread",
+              ],
+              ans: 0,
+              explain:
+                "<code>#[ignore]</code> excludes expensive or slow tests from the default test run. Use <code>--ignored</code> to run them.",
+            },
+            {
+              q: "Can a test function return a <code>Result</code> instead of panicking?",
+              opts: [
+                "Yes — returning <code>Result&lt;(), String&gt;</code> lets you use <code>?</code> in tests",
+                "No — tests must always use <code>assert!</code>",
+                "Only in integration tests",
+                "Only if the test is async",
+              ],
+              ans: 0,
+              explain:
+                "Test functions can return <code>Result&lt;(), E&gt;</code>, where <code>Err</code> causes test failure, enabling <code>?</code> operator usage.",
+            },
+            {
+              q: "What is the <code>#[cfg(test)]</code> attribute used for?",
+              opts: [
+                "Conditionally compiles the module only when running tests",
+                "Configures test output format",
+                "Sets the test timeout",
+                "Marks a module as a benchmark",
+              ],
+              ans: 0,
+              explain:
+                "<code>#[cfg(test)]</code> tells the compiler to include the module only during <code>cargo test</code>, not in regular builds.",
+            },
           ],
         },
         {
@@ -1564,6 +2224,66 @@
               ans: 0,
               explain:
                 "<code>eprintln!</code> prints to standard error, keeping stdout clean for normal program output.",
+            },
+            {
+              q: "Why does the minigrep project use <code>process::exit(1)</code> in <code>main</code>?",
+              opts: [
+                "To return a non-zero exit code indicating an error to the shell",
+                "To restart the program",
+                "To free all memory before exiting",
+                "To close file handles explicitly",
+              ],
+              ans: 0,
+              explain:
+                "Calling <code>process::exit(1)</code> terminates with exit code 1, which conventionally signals an error to the calling process.",
+            },
+            {
+              q: "What does <code>env::args()</code> return as its first element?",
+              opts: [
+                "The path to the program being executed",
+                "The first user-provided argument",
+                "An empty string",
+                "The current working directory",
+              ],
+              ans: 0,
+              explain:
+                "Like most systems, the first element of <code>args()</code> is the program name or path; actual arguments start at index 1.",
+            },
+            {
+              q: "Why does the chapter move configuration into a <code>Config</code> struct?",
+              opts: [
+                "To group related values and make the code more readable and testable",
+                "Because Rust requires all config to be in structs",
+                "To enable serialization to a file",
+                "For better runtime performance",
+              ],
+              ans: 0,
+              explain:
+                "Grouping <code>query</code> and <code>file_path</code> into a <code>Config</code> struct clarifies their relationship and improves the API.",
+            },
+            {
+              q: "What type does <code>fs::read_to_string</code> return?",
+              opts: [
+                "<code>Result&lt;String, io::Error&gt;</code>",
+                "<code>String</code>",
+                "<code>Option&lt;String&gt;</code>",
+                "<code>&str</code>",
+              ],
+              ans: 0,
+              explain:
+                "It returns a <code>Result</code> because reading a file can fail (file not found, permission denied, etc.).",
+            },
+            {
+              q: "What does <code>lines()</code> return when called on a string?",
+              opts: [
+                "An iterator over each line of the string",
+                "The number of lines",
+                "A <code>Vec&lt;String&gt;</code>",
+                "A single concatenated string",
+              ],
+              ans: 0,
+              explain:
+                "<code>.lines()</code> returns an iterator yielding each line as a <code>&str</code>, which is useful for line-by-line processing.",
             },
           ],
         },
@@ -1631,6 +2351,66 @@
               explain:
                 "<code>collect()</code> transforms an iterator into a concrete collection like <code>Vec</code>, <code>HashMap</code>, or <code>String</code>.",
             },
+            {
+              q: "What are the three <code>Fn</code> traits that closures can implement?",
+              opts: [
+                "<code>Fn</code>, <code>FnMut</code>, and <code>FnOnce</code>",
+                "<code>Fn</code>, <code>FnRef</code>, and <code>FnOwn</code>",
+                "<code>Callable</code>, <code>Invocable</code>, and <code>Lambda</code>",
+                "<code>Fn</code>, <code>Closure</code>, and <code>Lambda</code>",
+              ],
+              ans: 0,
+              explain:
+                "<code>FnOnce</code> consumes captured variables, <code>FnMut</code> mutates them, and <code>Fn</code> borrows them immutably.",
+            },
+            {
+              q: "What does <code>iter().filter(|x| x > &5)</code> return?",
+              opts: [
+                "A new lazy iterator that only yields elements greater than 5",
+                "A <code>Vec</code> of elements greater than 5",
+                "The count of elements greater than 5",
+                "The first element greater than 5",
+              ],
+              ans: 0,
+              explain:
+                "<code>filter</code> is an iterator adaptor that lazily skips elements for which the predicate returns <code>false</code>.",
+            },
+            {
+              q: "What does <code>iter()</code> vs <code>into_iter()</code> vs <code>iter_mut()</code> determine?",
+              opts: [
+                "Whether elements are borrowed immutably, consumed by value, or borrowed mutably",
+                "The speed of iteration",
+                "Whether iteration is lazy or eager",
+                "The order of iteration",
+              ],
+              ans: 0,
+              explain:
+                "<code>iter()</code> yields <code>&T</code>, <code>iter_mut()</code> yields <code>&mut T</code>, and <code>into_iter()</code> yields owned <code>T</code>, consuming the collection.",
+            },
+            {
+              q: "What does <code>map()</code> do on an iterator?",
+              opts: [
+                "Transforms each element by applying a closure, producing a new iterator",
+                "Collects elements into a <code>HashMap</code>",
+                "Filters elements based on a condition",
+                "Counts the number of elements",
+              ],
+              ans: 0,
+              explain:
+                "<code>map</code> is a lazy adaptor: <code>vec.iter().map(|x| x * 2)</code> creates an iterator of doubled values.",
+            },
+            {
+              q: "What does <code>move</code> do before a closure?",
+              opts: [
+                "Forces the closure to take ownership of all captured variables",
+                "Moves the closure to a different thread",
+                "Makes the closure mutable",
+                "Converts the closure to a function pointer",
+              ],
+              ans: 0,
+              explain:
+                "<code>move || { ... }</code> transfers ownership of referenced variables into the closure, useful when the closure outlives the current scope.",
+            },
           ],
         },
         {
@@ -1696,6 +2476,66 @@
               ans: 0,
               explain:
                 "<code>cargo publish</code> packages and uploads your crate to crates.io for others to use.",
+            },
+            {
+              q: "What comment style is used for documentation in Rust?",
+              opts: [
+                "Triple slash <code>///</code> for item docs, <code>//!</code> for module-level docs",
+                "Double slash <code>//</code> for all documentation",
+                "<code>/* doc */</code> only",
+                "<code>#[doc]</code> attribute exclusively",
+              ],
+              ans: 0,
+              explain:
+                "<code>///</code> documents the following item using Markdown. <code>//!</code> documents the enclosing item (commonly the crate root).",
+            },
+            {
+              q: "What does <code>cargo doc --open</code> do?",
+              opts: [
+                "Generates HTML documentation and opens it in the browser",
+                "Opens the source code in an editor",
+                "Opens the crates.io page",
+                "Publishes docs to docs.rs",
+              ],
+              ans: 0,
+              explain:
+                "<code>cargo doc --open</code> builds docs for your crate and all dependencies, then launches a browser to view them.",
+            },
+            {
+              q: "How do you specify optimization level in a Cargo profile?",
+              opts: [
+                "<code>opt-level = 3</code> in the <code>[profile.release]</code> section of <code>Cargo.toml</code>",
+                "Using the <code>--optimize</code> CLI flag",
+                "Setting <code>RUSTFLAGS</code> environment variable",
+                "Adding <code>#[optimize]</code> attribute to <code>main</code>",
+              ],
+              ans: 0,
+              explain:
+                "Cargo profiles in <code>Cargo.toml</code> accept <code>opt-level</code> (0-3) to control optimization. Default is 0 for dev, 3 for release.",
+            },
+            {
+              q: "What is the purpose of <code>cargo install</code>?",
+              opts: [
+                "Installs a binary crate from crates.io into <code>~/.cargo/bin</code>",
+                "Installs project dependencies",
+                "Installs the Rust toolchain",
+                "Installs a cargo plugin",
+              ],
+              ans: 0,
+              explain:
+                "<code>cargo install crate_name</code> downloads, compiles, and installs binary crates to your local bin directory.",
+            },
+            {
+              q: "What does <code>cargo yank --vers 1.0.0</code> do?",
+              opts: [
+                "Prevents new projects from depending on that version, but doesn't delete it",
+                "Deletes the version from crates.io permanently",
+                "Reverts to the previous version",
+                "Marks the version as deprecated in documentation",
+              ],
+              ans: 0,
+              explain:
+                "Yanking prevents new <code>Cargo.lock</code> files from using that version while allowing existing ones to continue working.",
             },
           ],
         },
@@ -1763,6 +2603,66 @@
               explain:
                 "The <code>Drop</code> trait's <code>drop</code> method is called automatically when an owner goes out of scope.",
             },
+            {
+              q: "What is a reference cycle and why is it problematic with <code>Rc&lt;T&gt;</code>?",
+              opts: [
+                "When two <code>Rc</code> values reference each other, their counts never reach zero, causing a memory leak",
+                "When a reference points to itself",
+                "When a thread deadlocks on a reference",
+                "It's not a problem — <code>Rc</code> handles cycles automatically",
+              ],
+              ans: 0,
+              explain:
+                "<code>Rc</code> cannot detect cycles. Use <code>Weak&lt;T&gt;</code> to break reference cycles and prevent memory leaks.",
+            },
+            {
+              q: "What is <code>Weak&lt;T&gt;</code> and how does it differ from <code>Rc&lt;T&gt;</code>?",
+              opts: [
+                "A non-owning reference that doesn't prevent deallocation",
+                "A faster version of <code>Rc</code>",
+                "A thread-safe reference count",
+                "A reference with no runtime cost",
+              ],
+              ans: 0,
+              explain:
+                "<code>Weak&lt;T&gt;</code> doesn't increment the strong count. You must call <code>.upgrade()</code> to get an <code>Option&lt;Rc&lt;T&gt;&gt;</code>.",
+            },
+            {
+              q: "What is deref coercion?",
+              opts: [
+                "Automatic conversion of a reference to a type implementing <code>Deref</code> into a reference to the target type",
+                "Manually casting between pointer types",
+                "Converting owned values to references",
+                "Removing the <code>Deref</code> implementation",
+              ],
+              ans: 0,
+              explain:
+                "Deref coercion lets <code>&String</code> become <code>&str</code> automatically, because <code>String</code> implements <code>Deref&lt;Target = str&gt;</code>.",
+            },
+            {
+              q: "Can you manually call <code>drop()</code> on a value before it goes out of scope?",
+              opts: [
+                "Yes — use <code>std::mem::drop(value)</code>, not <code>value.drop()</code>",
+                "No — Rust never allows early dropping",
+                "Yes — just call <code>value.drop()</code> directly",
+                "Only inside <code>unsafe</code> blocks",
+              ],
+              ans: 0,
+              explain:
+                "You can't call the <code>Drop::drop</code> method directly; use <code>std::mem::drop(value)</code> to drop a value early.",
+            },
+            {
+              q: "What is the main use case for <code>Box&lt;T&gt;</code>?",
+              opts: [
+                "Storing data on the heap when the size isn't known at compile time, or for recursive types",
+                "Shared ownership across threads",
+                "Interior mutability",
+                "Runtime type checking",
+              ],
+              ans: 0,
+              explain:
+                "<code>Box</code> is commonly used for recursive types (like linked lists), large data, or trait objects where the size must be known.",
+            },
           ],
         },
         {
@@ -1828,6 +2728,66 @@
               ans: 0,
               explain:
                 "<code>Arc</code> (Atomic Reference Counting) is the thread-safe version of <code>Rc</code>, required for sharing data across threads.",
+            },
+            {
+              q: "What does <code>thread::spawn</code> return?",
+              opts: [
+                "A <code>JoinHandle&lt;T&gt;</code> that can be used to wait for the thread to finish",
+                "A thread ID number",
+                "A <code>Result</code> indicating success or failure",
+                "Nothing — it's a fire-and-forget operation",
+              ],
+              ans: 0,
+              explain:
+                "<code>JoinHandle</code> lets you call <code>.join()</code> to block until the thread completes and retrieve its return value.",
+            },
+            {
+              q: "What is <code>mpsc</code> in Rust's standard library?",
+              opts: [
+                "Multiple Producer, Single Consumer — a channel type for message passing",
+                "Multi-Process Synchronization Channel",
+                "Memory-Protected Shared Container",
+                "Multiple Parallel Sequential Computation",
+              ],
+              ans: 0,
+              explain:
+                "<code>mpsc::channel()</code> creates a channel where multiple senders can transmit values to a single receiver.",
+            },
+            {
+              q: "What happens if you send a value through a channel after the receiver has been dropped?",
+              opts: [
+                "The <code>send</code> returns an <code>Err</code>",
+                "The value is silently discarded",
+                "The program panics",
+                "The sender blocks indefinitely",
+              ],
+              ans: 0,
+              explain:
+                "<code>send()</code> returns <code>Result</code>; if the receiver is dropped, it returns <code>Err</code> because there's nowhere to deliver the message.",
+            },
+            {
+              q: "Why can't you use <code>Rc&lt;T&gt;</code> across threads?",
+              opts: [
+                "Because <code>Rc</code> doesn't use atomic operations, making it not thread-safe (<code>!Send</code>)",
+                "Because <code>Rc</code> is too slow for multithreading",
+                "Because threads can't share any data",
+                "You can — it works fine across threads",
+              ],
+              ans: 0,
+              explain:
+                "<code>Rc</code> uses non-atomic reference counting, so concurrent modifications could corrupt the count. Use <code>Arc</code> instead.",
+            },
+            {
+              q: "What does <code>Mutex::lock()</code> return?",
+              opts: [
+                "A <code>Result</code> containing a <code>MutexGuard</code> that auto-releases the lock when dropped",
+                "A boolean indicating if the lock was acquired",
+                "The inner value directly",
+                "A <code>JoinHandle</code>",
+              ],
+              ans: 0,
+              explain:
+                "<code>lock()</code> returns <code>LockResult&lt;MutexGuard&lt;T&gt;&gt;</code>. The guard implements <code>Deref</code> to access the data and <code>Drop</code> to release the lock.",
             },
           ],
         },
@@ -1895,6 +2855,66 @@
               explain:
                 "Rust's standard library provides the <code>Future</code> trait but not a runtime; crates like tokio provide executors.",
             },
+            {
+              q: "What does <code>Future::poll()</code> return?",
+              opts: [
+                "<code>Poll::Ready(value)</code> when done, or <code>Poll::Pending</code> when not yet complete",
+                "A <code>Result</code> type",
+                "A boolean",
+                "The final value directly",
+              ],
+              ans: 0,
+              explain:
+                "The <code>poll</code> method returns <code>Poll::Pending</code> to signal the future isn't ready and should be polled again later.",
+            },
+            {
+              q: "Can you use <code>.await</code> outside of an <code>async</code> function?",
+              opts: [
+                "No — <code>.await</code> can only be used inside <code>async</code> functions or blocks",
+                "Yes — it works anywhere",
+                "Only in <code>main()</code>",
+                "Only inside <code>unsafe</code> blocks",
+              ],
+              ans: 0,
+              explain:
+                "<code>.await</code> is only valid in async contexts because it transforms the surrounding code into a state machine.",
+            },
+            {
+              q: "What is an <code>async</code> block?",
+              opts: [
+                "An anonymous async expression that creates a <code>Future</code>, like <code>async { expr }</code>",
+                "A synchronized code block",
+                "A block that runs on a separate thread",
+                "A macro for creating threads",
+              ],
+              ans: 0,
+              explain:
+                "<code>async { ... }</code> creates an anonymous future, similar to how closures create anonymous functions.",
+            },
+            {
+              q: "What is the relationship between <code>async fn</code> and <code>Future</code>?",
+              opts: [
+                "<code>async fn foo() -&gt; T</code> is syntactic sugar for a function returning <code>impl Future&lt;Output = T&gt;</code>",
+                "They are completely unrelated concepts",
+                "<code>Future</code> is deprecated in favor of <code>async fn</code>",
+                "<code>async fn</code> creates threads, <code>Future</code> is for callbacks",
+              ],
+              ans: 0,
+              explain:
+                "An <code>async fn</code> desugars to a function that returns a <code>Future</code>. The body becomes the future's state machine.",
+            },
+            {
+              q: "What does <code>tokio::spawn()</code> do?",
+              opts: [
+                "Spawns an async task that runs concurrently on the tokio runtime",
+                "Creates a new OS thread",
+                "Blocks until the future completes",
+                "Converts sync code to async",
+              ],
+              ans: 0,
+              explain:
+                "<code>tokio::spawn</code> schedules an async task on the runtime's executor, allowing it to run concurrently with other tasks.",
+            },
           ],
         },
         {
@@ -1960,6 +2980,66 @@
               ans: 0,
               explain:
                 "The chapter implements the state pattern where each state is a trait object implementing shared behavior differently.",
+            },
+            {
+              q: "What is object safety in Rust?",
+              opts: [
+                "A set of rules a trait must satisfy to be used as a trait object (<code>dyn Trait</code>)",
+                "Memory safety for objects",
+                "A testing strategy for OOP code",
+                "A lint for unused objects",
+              ],
+              ans: 0,
+              explain:
+                "A trait is object-safe if its methods don't return <code>Self</code> and don't use generic type parameters, among other rules.",
+            },
+            {
+              q: "How does <code>dyn Trait</code> differ from <code>impl Trait</code>?",
+              opts: [
+                "<code>dyn Trait</code> uses dynamic dispatch (vtable); <code>impl Trait</code> uses static dispatch (monomorphization)",
+                "They are identical in behavior",
+                "<code>impl Trait</code> is slower due to boxing",
+                "<code>dyn Trait</code> is resolved at compile time",
+              ],
+              ans: 0,
+              explain:
+                "<code>impl Trait</code> is resolved at compile time with zero overhead. <code>dyn Trait</code> uses a vtable pointer for runtime dispatch.",
+            },
+            {
+              q: "What is the Rust alternative to OOP inheritance for code reuse?",
+              opts: [
+                "Default trait method implementations and composition",
+                "The <code>extends</code> keyword",
+                "Struct embedding like in Go",
+                "Prototype chains",
+              ],
+              ans: 0,
+              explain:
+                "Rust uses traits with default methods for shared behavior and struct composition (fields of other types) for code reuse.",
+            },
+            {
+              q: "What does <code>Box&lt;dyn Error&gt;</code> represent?",
+              opts: [
+                "A heap-allocated trait object that can hold any type implementing the <code>Error</code> trait",
+                "A boxed string error message",
+                "A compile-time error type",
+                "A special error for Box operations",
+              ],
+              ans: 0,
+              explain:
+                "<code>Box&lt;dyn Error&gt;</code> is commonly used as a return type to allow functions to return different error types.",
+            },
+            {
+              q: "In the state pattern example, why does the blog post's <code>content()</code> method return an empty string in draft state?",
+              opts: [
+                "Because the state trait object's implementation for <code>Draft</code> returns an empty string",
+                "Because the content field is not set yet",
+                "Because drafts are stored in a separate data structure",
+                "Because the compiler optimizes away draft content",
+              ],
+              ans: 0,
+              explain:
+                "Each state struct implements the <code>content()</code> method differently — <code>Draft</code> returns <code>\"\"</code> while <code>Published</code> returns the actual content.",
             },
           ],
         },
@@ -2027,6 +3107,66 @@
               explain:
                 "Match guards add an <code>if</code> after the pattern: <code>Some(x) if x > 5 => ...</code> for additional filtering.",
             },
+            {
+              q: "What does the <code>|</code> operator do in a match pattern?",
+              opts: [
+                "Matches any of several patterns: <code>1 | 2 | 3 =&gt; ...</code>",
+                "Performs a bitwise OR on the value",
+                "Creates a closure inside the match",
+                "Pipes the result to another arm",
+              ],
+              ans: 0,
+              explain:
+                "The <code>|</code> in patterns means \"or\" — <code>1 | 2 | 3</code> matches if the value is 1, 2, or 3.",
+            },
+            {
+              q: "What does <code>ref</code> do in a pattern?",
+              opts: [
+                "Creates a reference to the matched value instead of moving it",
+                "Dereferences a pointer",
+                "References an external variable",
+                "Creates a mutable binding",
+              ],
+              ans: 0,
+              explain:
+                "<code>ref</code> in a pattern borrows the matched value: <code>let ref x = value;</code> is equivalent to <code>let x = &value;</code>.",
+            },
+            {
+              q: "Can you destructure nested structs and enums in a single pattern?",
+              opts: [
+                "Yes — patterns can nest arbitrarily: <code>Message::Move { x: 0..=10, y }</code>",
+                "No — you must destructure one level at a time",
+                "Only enums, not structs",
+                "Only with the <code>deep</code> keyword",
+              ],
+              ans: 0,
+              explain:
+                "Rust patterns support deep destructuring, letting you match and bind nested data in a single pattern expression.",
+            },
+            {
+              q: "What is the <code>_</code> prefix convention for unused variables?",
+              opts: [
+                "Starting a name with <code>_</code> (like <code>_x</code>) suppresses unused variable warnings but still binds the value",
+                "It makes the variable mutable",
+                "It creates a global variable",
+                "It is identical to using just <code>_</code>",
+              ],
+              ans: 0,
+              explain:
+                "<code>_x</code> still binds and owns the value (unlike <code>_</code> which doesn't bind at all), but suppresses the unused warning.",
+            },
+            {
+              q: "What does <code>3..=7</code> match in a pattern?",
+              opts: [
+                "Any value from 3 to 7, inclusive",
+                "Only 3 and 7",
+                "Values from 3 to 6 (exclusive end)",
+                "A tuple of (3, 7)",
+              ],
+              ans: 0,
+              explain:
+                "<code>..=</code> is the inclusive range pattern. <code>3..=7</code> matches 3, 4, 5, 6, and 7.",
+            },
           ],
         },
         {
@@ -2092,6 +3232,66 @@
               ans: 0,
               explain:
                 "The never type <code>!</code> indicates a function never returns (e.g., <code>loop {}</code> or <code>panic!()</code>).",
+            },
+            {
+              q: "What can you do inside an <code>unsafe</code> block that you can't do in safe Rust?",
+              opts: [
+                "Dereference raw pointers, call unsafe functions, access mutable statics, implement unsafe traits, and access union fields",
+                "Disable the borrow checker entirely",
+                "Use uninitialized variables",
+                "Skip type checking",
+              ],
+              ans: 0,
+              explain:
+                "<code>unsafe</code> enables exactly five superpowers. The borrow checker and type system still apply inside <code>unsafe</code> blocks.",
+            },
+            {
+              q: "How do associated types differ from generic type parameters on a trait?",
+              opts: [
+                "Associated types allow only one implementation per type; generics allow multiple",
+                "They are identical in functionality",
+                "Associated types are faster at runtime",
+                "Generics cannot be used in traits",
+              ],
+              ans: 0,
+              explain:
+                "With associated types, <code>impl Iterator for Counter</code> has one <code>Item</code>. With generics, you could implement <code>Iterator&lt;i32&gt;</code> and <code>Iterator&lt;String&gt;</code> for the same type.",
+            },
+            {
+              q: "What is a type alias created with <code>type</code>?",
+              opts: [
+                "A new name for an existing type that is interchangeable with it",
+                "A completely new type that wraps the original",
+                "A generic type parameter",
+                "A trait bound",
+              ],
+              ans: 0,
+              explain:
+                "<code>type Kilometers = i32;</code> creates a synonym. Unlike the newtype pattern, aliases don't create distinct types for type checking.",
+            },
+            {
+              q: "What is a raw pointer in Rust?",
+              opts: [
+                "<code>*const T</code> or <code>*mut T</code> — pointers that bypass borrow checking rules",
+                "A reference without a lifetime",
+                "A dangling pointer",
+                "A pointer to a raw byte array",
+              ],
+              ans: 0,
+              explain:
+                "Raw pointers can be created in safe code, but dereferencing them requires <code>unsafe</code> because the compiler can't guarantee their validity.",
+            },
+            {
+              q: "What does the <code>extern</code> keyword enable in Rust?",
+              opts: [
+                "Foreign Function Interface (FFI) — calling functions from other languages like C",
+                "Exporting modules",
+                "Defining external crate dependencies",
+                "Creating external threads",
+              ],
+              ans: 0,
+              explain:
+                "<code>extern \"C\" fn</code> defines functions using the C ABI, enabling interop with C libraries and other languages.",
             },
           ],
         },
