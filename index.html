@@ -100,6 +100,12 @@
         margin: 0 auto;
         padding: 30px 20px;
         min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      #app.quiz-active {
+        justify-content: center;
       }
 
       /* ── HEADER ── */
@@ -661,38 +667,40 @@
     <div class="bg-glow-2"></div>
 
     <div id="app">
-      <div class="header">
-        <div class="logo">// The Ferris Challenge</div>
-        <h1>Rust Book Quiz</h1>
-        <div class="subtitle">
-          Master "The Rust Programming Language" — chapter by chapter
+      <div id="homeHeader">
+        <div class="header">
+          <div class="logo">// The Ferris Challenge</div>
+          <h1>Rust Book Quiz</h1>
+          <div class="subtitle">
+            Master "The Rust Programming Language" — chapter by chapter
+          </div>
+          <div class="ferris">🦀</div>
         </div>
-        <div class="ferris">🦀</div>
-      </div>
 
-      <div class="stats-bar">
-        <div class="stat">
-          <div class="stat-value" id="totalScore">0</div>
-          <div class="stat-label">Score</div>
+        <div class="stats-bar">
+          <div class="stat">
+            <div class="stat-value" id="totalScore">0</div>
+            <div class="stat-label">Score</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value" id="totalCompleted">0</div>
+            <div class="stat-label">Completed</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value" id="totalStars">0</div>
+            <div class="stat-label">★ Stars</div>
+          </div>
         </div>
-        <div class="stat">
-          <div class="stat-value" id="totalCompleted">0</div>
-          <div class="stat-label">Completed</div>
-        </div>
-        <div class="stat">
-          <div class="stat-value" id="totalStars">0</div>
-          <div class="stat-label">★ Stars</div>
-        </div>
-      </div>
 
-      <div style="text-align: center; margin-bottom: 20px">
-        <button class="back-btn" onclick="resetProgress()">Reset Progress</button>
-      </div>
+        <div style="text-align: center; margin-bottom: 20px">
+          <button class="back-btn" onclick="resetProgress()">Reset Progress</button>
+        </div>
 
-      <div style="text-align: center; margin-bottom: 20px">
-        <button class="next-btn" onclick="startRandomQuiz()" style="font-size: 15px; padding: 14px 36px">
-          Random Quiz ∞
-        </button>
+        <div style="text-align: center; margin-bottom: 20px">
+          <button class="next-btn" onclick="startRandomQuiz()" style="font-size: 15px; padding: 14px 36px">
+            Random Quiz ∞
+          </button>
+        </div>
       </div>
 
       <!-- Level Select -->
@@ -2162,6 +2170,9 @@
           .querySelectorAll(".screen")
           .forEach((s) => s.classList.remove("active"));
         document.getElementById(id).classList.add("active");
+        const isHome = id === "levelSelect";
+        document.getElementById("homeHeader").style.display = isHome ? "" : "none";
+        document.getElementById("app").classList.toggle("quiz-active", !isHome);
       }
 
       // ─── LEVEL SELECT ───
